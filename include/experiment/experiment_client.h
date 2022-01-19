@@ -8,7 +8,7 @@ namespace experiment {
         Routes(
                 Add_route("experiment_started", on_experiment_started, cell_world::Experiment);
                 Add_route("episode_started", on_episode_started, std::string);
-                Add_route("episode_finished", on_episode_finished, std::string);
+                Add_route("episode_finished", on_episode_finished);
                 Add_route("experiment_finished", on_experiment_finished, std::string);
         )
 
@@ -16,7 +16,7 @@ namespace experiment {
 
         virtual void on_episode_started(const std::string &experiment_name) {};
 
-        virtual void on_episode_finished(const std::string &experiment_name) {};
+        virtual void on_episode_finished() {};
 
         virtual void on_experiment_finished(const std::string &experiment_name) {};
 

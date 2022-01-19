@@ -21,9 +21,9 @@ namespace experiment {
         new_experiment.world_implementation_name = parameters.world.world_implementation;
         new_experiment.occlusions = parameters.world.occlusions;
         new_experiment.duration = parameters.duration;
-        new_experiment.set_name(parameters.prefix, parameters.suffix);
         new_experiment.subject_name = parameters.subject_name;
         new_experiment.start_time = json_cpp::Json_date::now();
+        new_experiment.set_name(parameters.prefix, parameters.suffix);
         new_experiment.save(get_experiment_file(new_experiment.name));
         broadcast_subscribed(tcp_messages::Message("experiment_started",new_experiment));
         return new_experiment;
@@ -44,6 +44,7 @@ namespace experiment {
 
     bool Experiment_service::finish_episode() {
         if (!episode_in_progress) return false;
+        if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
         auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
         active_experiment = "";
         active_episode.end_time = json_cpp::Json_date::now();
@@ -56,7 +57,7 @@ namespace experiment {
     }
 
     bool Experiment_service::finish_experiment(const Finish_experiment_request &parameters) {
-        broadcast_subscribed(tcp_messages::Message("finish_experiment",parameters.experiment_name));
+        broadcast_subscribed(tcp_messages::Message("experiment_finished",parameters.experiment_name));
         return true;
     }
 
@@ -68,7 +69,15 @@ namespace experiment {
         tracking_client.disconnect();
     }
 
+    bool Experiment_service::get_experiment_state(const Get_experiment_state_request &parameters) {
+        if (!cell_world::file_exists(get_experiment_file(parameters.experiment_name))) return false;
+        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(parameters.experiment_name));
+        auto end_time = experiment.start_time + chrono::seconds(experiment.duration);
+        return end_time > json_cpp::Json_date::now();
+    }
+
     void Experiment_tracking_client::on_step(const Step &step) {
+        cout << "new_step: " << step << endl;
         active_episode.trajectories.emplace_back(step);
     }
 }

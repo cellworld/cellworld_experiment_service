@@ -29,4 +29,10 @@ namespace experiment {
         )
         std::string experiment_name;
     };
+    struct Get_experiment_state_request : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(experiment_name);
+        )
+        std::string experiment_name;
+    };
 }
