@@ -25,7 +25,7 @@ struct Client : experiment::Experiment_client {
 TEST_CASE("client_test") {
     auto t1 = thread ([]() {
         Client client;
-        client.connect("127.0.0.1", 4590);
+        client.connect("127.0.0.1");
         client.subscribe();
         client.join();
     });
@@ -34,7 +34,7 @@ TEST_CASE("client_test") {
     wi.world_implementation = "cv";
     wi.occlusions = "10_05";
     Client client;
-    client.connect("127.0.0.1", 4590);
+    client.connect("127.0.0.1");
     sleep_for(1s);
     auto experiment = client.start_experiment(wi,"test_subject",10,"prefix","suffix");
     sleep_for(1s);

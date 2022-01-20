@@ -78,13 +78,13 @@ namespace experiment {
         if (!cell_world::file_exists(get_experiment_file(parameters.experiment_name))) return response;
         auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(parameters.experiment_name));
         auto end_time = experiment.start_time + chrono::seconds(experiment.duration);
-        auto remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
+        float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
         if (remaining<0) remaining = 0;
-        response.experiment_name = experiment.name;`
+        response.experiment_name = experiment.name;
         response.start_date = experiment.start_time;
         response.duration = experiment.duration;
         response.episode_count = experiment.episodes.size();
-        response.remaining_time = (float)remaining.count() / 1000;
+        response.remaining_time = remaining;
         return response;
     }
 
@@ -95,5 +95,11 @@ namespace experiment {
     int Experiment_service::get_port() {
         string port_str(std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") ? std::getenv("AGENT_TRACKING_PORT") : "4540");
         return atoi(port_str.c_str());
+    }
+
+    void Experiment_tracking_client::on_step(const Step &step) {
+        if (episode_in_progress){
+            active_episode.trajectories.push_back(step);
+        }
     }
 }

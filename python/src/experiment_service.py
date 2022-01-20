@@ -14,7 +14,7 @@ class ExperimentService(MessageServer):
         self.router.add_route("finish_episode", self.finish_episode)
         self.router.add_route("finish_experiment", self.finish_experiment, FinishExperimentRequest)
         self.router.add_route("get_experiment", self.get_experiment, GetExperimentRequest)
-
+        self.allow_subscription = True
         self.active_experiment = None
         self.active_episode = None
         self.episode_in_progress = False
@@ -27,7 +27,7 @@ class ExperimentService(MessageServer):
         return "logs/" + experiment_name + ".json"
 
     def start(self):
-        MessageServer.start(self, ExperimentService.port())
+        return MessageServer.start(self, ExperimentService.port())
 
     def __process_step__(self, step):
         print(step)
