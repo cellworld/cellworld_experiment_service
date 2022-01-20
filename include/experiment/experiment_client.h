@@ -34,5 +34,7 @@ namespace experiment {
 
         bool is_active(const std::string &experiment_name);
 
+        bool connect (const std::string &ip);
+
     };
 }

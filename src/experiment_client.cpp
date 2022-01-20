@@ -1,4 +1,5 @@
 #include <experiment/experiment_client.h>
+#include <experiment/experiment_service.h>
 #include <experiment/experiment_messages.h>
 #include <cell_world.h>
 
@@ -41,6 +42,11 @@ namespace experiment {
         Get_experiment_request request;
         request.experiment_name = experiment_name;
         return send_request(tcp_messages::Message("get_experiment",request)).get_body<Get_experiment_response>();
+    }
+
+    bool Experiment_client::connect(const std::string &ip) {
+        auto port = Experiment_service::get_port();
+        tcp_messages::Message_client::connect(ip, port);
     }
 
 }

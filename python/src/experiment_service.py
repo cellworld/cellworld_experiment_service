@@ -15,65 +15,95 @@ class ExperimentService(MessageServer):
         self.router.add_route("finish_experiment", self.finish_experiment, FinishExperimentRequest)
         self.router.add_route("get_experiment", self.get_experiment, GetExperimentRequest)
 
-        self.current_experiment = None
-        self.experiment_timer = Timer()
-        self.allow_subscription = True
-        self.current_episode = None
-        self.tracker = TrackingClient()
-        self.tracker.connect(tracker_ip)
+        self.active_experiment = None
+        self.active_episode = None
+        self.episode_in_progress = False
+        self.tracking_client = None
+        self.tracking_service_ip = None
+        self.on_step = self.__process_step__
 
     @staticmethod
     def get_experiment_file(experiment_name: str):
         return "logs/" + experiment_name + ".json"
 
     def start(self):
-        MessageServer.start(self, self.port())
+        MessageServer.start(self, ExperimentService.port())
 
     def __process_step__(self, step):
         print(step)
-        if self.current_episode:
-            self.current_episode.trajectories.append(step)
+        if self.active_experiment:
+            self.active_episode.trajectories.append(step)
 
-    def start_experiment(self, parameters: StartExperimentRequest) -> bool:
-        if self.current_experiment:
-            return False
-        new_experiment = Experiment(name=parameters.name,
-                                    subject_name=parameters.subject_name,
-                                    world_configuration_name=parameters.world.world_configuration,
+    def start_experiment(self, parameters: StartExperimentRequest) -> StartExperimentResponse:
+        new_experiment = Experiment(world_configuration_name=parameters.world.world_configuration,
                                     world_implementation_name=parameters.world.world_implementation,
                                     occlusions=parameters.world.occlusions,
-                                    duration=parameters.duration)
+                                    duration=parameters.duration,
+                                    subject_name=parameters.subject_name,
+                                    start_time=datetime.now())
+        new_experiment.set_name(parameters.prefix, parameters.suffix)
+        new_experiment.save(ExperimentService.get_experiment_file(new_experiment.name))
 
-        str(new_experiment)
+        response = StartExperimentResponse()
+        response.experiment_name = new_experiment.name
+        response.start_date = new_experiment.start_time
+        self.broadcast_subscribed(Message("experiment_started", response))
+        return response
 
-        self.current_episode = None
-        self.experiment_timer.reset()
-        self.broadcast_subscribed(Message("experiment_started", parameters))
-        return True
-
-    def start_episode(self, m) -> bool:
-        self.tracker.register_consumer(self.__process_step__)
-        if self.current_episode:
+    def start_episode(self, parameters: StartEpisodeRequest) -> bool:
+        if self.episode_in_progress:
             return False
-        self.current_episode = Episode()
-        self.broadcast_subscribed(Message("episode_started", len(self.current_experiment.episodes)))
-        return True
+        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
+        if experiment:
+            self.active_experiment = experiment
+            self.active_episode = Episode()
+            self.episode_in_progress = True
+            if self.tracking_service_ip:
+                self.tracking_client = TrackingClient();
+                self.tracking_client.connect(self.tracking_service_ip)
+                self.tracking_client.register_consumer(self.__process_step__)
+            self.broadcast_subscribed(Message("episode_started", self.active_experiment))
+            return True
+        return False
 
     def finish_episode(self, m) -> bool:
-        self.tracker.unregister_consumer()
-        if not self.current_episode:
+        if not self.episode_in_progress:
             return False
-        self.current_experiment.episodes.append(self.current_episode)
-        self.current_episode = None
-        self.broadcast_subscribed(Message("episode_finished", len(self.current_experiment.episodes) - 1))
+
+        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(self.active_experiment))
+        if experiment:
+            self.active_episode.end_date = datetime.now()
+            experiment.episodes.append(self.active_episode)
+            experiment.save(ExperimentService.get_experiment_file(self.active_experiment))
+            self.episode_in_progress = False
+            if self.tracking_client:
+                self.tracking_client.unregister_consumer()
+                self.tracking_client.disconnect()
+                self.tracking_client = None
+            self.broadcast_subscribed(Message("episode_finished", self.active_experiment))
+            return True
+        return False
+
+    def finish_experiment(self, parameters: FinishExperimentRequest) -> bool:
+        self.broadcast_subscribed(Message("experiment_finished", parameters))
         return True
 
-    def finish_experiment(self, m) -> bool:
-        if not self.current_experiment:
-            return False
-        self.broadcast_subscribed(Message("experiment_finished", self.current_experiment.name))
-        self.current_experiment = None
-        return True
+    def get_experiment(self, parameters: GetExperimentRequest) -> GetExperimentResponse:
+        response = GetExperimentResponse()
+        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(self.active_experiment))
+        if experiment:
+            end_time = experiment.start_time + timedelta(seconds=experiment.duration)
+            remaining = (end_time - datetime.now()).seconds
+            if remaining < 0:
+                remaining = 0
+            response.experiment_name = experiment.name
+            response.start_date = experiment.start_date
+            response.duration = experiment.duration
+            response.remaining_time = remaining
+        return response
+
+    def set_tracking_service_ip(self, ip: str):
+        self.tracking_service_ip = ip
 
     @staticmethod
     def port() -> int:
