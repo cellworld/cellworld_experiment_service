@@ -5,7 +5,7 @@
 using namespace cell_world;
 
 namespace experiment {
-    Experiment Experiment_client::start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
+    Start_experiment_response Experiment_client::start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
                                                    const std::string &prefix , const std::string &suffix) {
         auto parameters = Start_experiment_request();
         parameters.prefix = prefix;
@@ -13,7 +13,7 @@ namespace experiment {
         parameters.world = world;
         parameters.subject_name = subject_name;
         parameters.duration = duration;
-        return send_request(tcp_messages::Message("start_experiment",parameters)).get_body<Experiment>();
+        return send_request(tcp_messages::Message("start_experiment",parameters)).get_body<Start_experiment_response>();
     }
 
     bool Experiment_client::start_episode(const std::string &experiment_name) {
@@ -30,6 +30,17 @@ namespace experiment {
         auto parameters = Finish_experiment_request();
         parameters.experiment_name = experiment_name;
         return send_request(tcp_messages::Message("finish_experiment",parameters)).get_body<bool>();
+    }
+
+    bool Experiment_client::is_active(const std::string &experiment_name) {
+        Get_experiment_response response = get_experiment(experiment_name);
+        return response.remaining_time > 0;
+    }
+
+    Get_experiment_response Experiment_client::get_experiment(const std::string &experiment_name) {
+        Get_experiment_request request;
+        request.experiment_name = experiment_name;
+        return send_request(tcp_messages::Message("get_experiment",request)).get_body<Get_experiment_response>();
     }
 
 }

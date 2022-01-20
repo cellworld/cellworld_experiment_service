@@ -7,7 +7,7 @@ using namespace std;
 using namespace this_thread;
 
 struct Client : experiment::Experiment_client {
-    void on_experiment_started(const cell_world::Experiment &experiment) override{
+    void on_experiment_started(const Start_experiment_response &experiment) override{
         cout << "on_experiment_started: " <<  experiment << endl;
     }
     void on_episode_started(const std::string &experiment_name) override {
@@ -38,11 +38,27 @@ TEST_CASE("client_test") {
     sleep_for(1s);
     auto experiment = client.start_experiment(wi,"test_subject",10,"prefix","suffix");
     sleep_for(1s);
-    client.start_episode(experiment.name);
+    client.start_episode(experiment.experiment_name);
     sleep_for(10s);
     client.finish_episode();
     sleep_for(1s);
-    client.finish_experiment(experiment.name);
+    client.start_episode(experiment.experiment_name);
+    sleep_for(10s);
+    client.finish_episode();
+    sleep_for(1s);
+    client.start_episode(experiment.experiment_name);
+    sleep_for(10s);
+    client.finish_episode();
+    sleep_for(1s);
+    client.start_episode(experiment.experiment_name);
+    sleep_for(10s);
+    client.finish_episode();
+    sleep_for(1s);
+    client.start_episode(experiment.experiment_name);
+    sleep_for(10s);
+    client.finish_episode();
+    sleep_for(1s);
+    client.finish_experiment(experiment.experiment_name);
     sleep_for(1s);
     client.disconnect();
     t1.join();
