@@ -22,6 +22,7 @@ namespace experiment{
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);
         static Get_experiment_response get_experiment(const Get_experiment_request &);
+        static void set_tracking_service_ip(const std::string &ip);
     };
 
     using Experiment_server = tcp_messages::Message_server<Experiment_service>;

@@ -12,10 +12,12 @@ find_package(Dependencies)
 install_dependency(https://github.com/germanespinosa/tcp-messages Tcp_messages)
 install_dependency(https://github.com/germanespinosa/agent_tracking Agent_tracking)
 install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
+install_dependency(https://github.com/germanespinosa/params-cpp Params-cpp)
 
 string(APPEND CMAKE_CXX_FLAGS " -fno-strict-aliasing -pthread ")
 
 include_directories(include)
+include_directories(dependencies/params-cpp/include)
 
 set(experiment_service_files
         src/experiment_client.cpp
@@ -31,7 +33,7 @@ target_link_libraries( experiment_service
 
 add_executable(experiment_server src/tools/server.cpp)
 
-target_link_libraries(experiment_server experiment_service)
+target_link_libraries(experiment_server experiment_service params-cpp)
 
 ###
 ### TESTS

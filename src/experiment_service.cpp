@@ -8,8 +8,8 @@ namespace experiment {
     string active_experiment = "";
     Episode active_episode;
     bool episode_in_progress = false;
-    Experiment_tracking_client *tracking_client;
-
+    Experiment_tracking_client *tracking_client = nullptr;
+    string tracking_service_ip = "";
 
     string get_experiment_file(const string &experiment_name){
         return "logs/" + experiment_name;
@@ -39,9 +39,11 @@ namespace experiment {
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
             episode_in_progress = true;
-            tracking_client = new Experiment_tracking_client();
-            tracking_client->connect("127.0.0.1");
-            tracking_client->register_consumer();
+            if (!tracking_service_ip.empty()) {
+                tracking_client = new Experiment_tracking_client();
+                tracking_client->connect("127.0.0.1");
+                tracking_client->register_consumer();
+            }
             broadcast_subscribed(tcp_messages::Message("episode_started",active_experiment));
             return true;
         }
@@ -56,9 +58,12 @@ namespace experiment {
         experiment.episodes.push_back(active_episode);
         experiment.save(get_experiment_file(active_experiment));
         episode_in_progress = false;
-        tracking_client->unregister_consumer();
-        tracking_client->disconnect();
-        delete tracking_client;
+        if (tracking_client) {
+            tracking_client->unregister_consumer();
+            tracking_client->disconnect();
+            delete tracking_client;
+            tracking_client = nullptr;
+        }
         broadcast_subscribed(tcp_messages::Message("episode_finished",active_experiment));
         return true;
     }
@@ -80,6 +85,10 @@ namespace experiment {
         response.episode_count = experiment.episodes.size();
         response.remaining_time = (float)remaining.count() / 1000;
         return response;
+    }
+
+    void Experiment_service::set_tracking_service_ip(const string &ip) {
+        tracking_service_ip = ip;
     }
 
     void Experiment_tracking_client::on_step(const Step &step) {
