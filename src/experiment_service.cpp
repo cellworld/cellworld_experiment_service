@@ -12,7 +12,7 @@ namespace experiment {
     string tracking_service_ip = "";
 
     string get_experiment_file(const string &experiment_name){
-        return "logs/" + experiment_name;
+        return "logs/" + experiment_name + ".json";
     }
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {
