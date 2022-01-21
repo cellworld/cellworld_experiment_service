@@ -16,8 +16,8 @@ install_dependency(https://github.com/germanespinosa/params-cpp Params-cpp)
 
 string(APPEND CMAKE_CXX_FLAGS " -fno-strict-aliasing -pthread ")
 
-include_directories(include)
-include_directories(dependencies/params-cpp/include)
+dependency_include(include)
+dependency_include(dependencies/params-cpp/include)
 
 set(experiment_service_files
         src/experiment_client.cpp
