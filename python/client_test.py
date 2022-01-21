@@ -28,6 +28,7 @@ client.on_episode_started = on_episode_started
 client.on_episode_finished = on_episode_finished
 client.on_experiment_finished = on_experiment_finished
 client.connect()
+client.set_tracking_service_ip("127.0.0.1")
 client.subscribe()
 
 client2 = ExperimentClient()

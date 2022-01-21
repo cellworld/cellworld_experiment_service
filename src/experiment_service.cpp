@@ -91,8 +91,9 @@ namespace experiment {
         return response;
     }
 
-    void Experiment_service::set_tracking_service_ip(const string &ip) {
+    bool Experiment_service::set_tracking_service_ip(const string &ip) {
         tracking_service_ip = ip;
+        return true;
     }
 
     int Experiment_service::get_port() {

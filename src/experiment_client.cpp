@@ -4,6 +4,7 @@
 #include <cell_world.h>
 
 using namespace cell_world;
+using namespace tcp_messages;
 
 namespace experiment {
     Start_experiment_response Experiment_client::start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
@@ -47,6 +48,10 @@ namespace experiment {
     bool Experiment_client::connect(const std::string &ip) {
         auto port = Experiment_service::get_port();
         return tcp_messages::Message_client::connect(ip, port);
+    }
+
+    bool Experiment_client::set_tracking_service_ip(const std::string &ip) {
+        return send_request(Message("set_tracking_service_ip", ip)).get_body<bool>();
     }
 
 }

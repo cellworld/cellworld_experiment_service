@@ -11,6 +11,7 @@ namespace experiment{
 
     struct Experiment_service : tcp_messages::Message_service {
         Routes(
+                Add_route_with_response("set_tracking_service_ip", set_tracking_service_ip, std::string);
                 Add_route_with_response("start_experiment", start_experiment, Start_experiment_request);
                 Add_route_with_response("start_episode", start_episode, Start_episode_request);
                 Add_route_with_response("finish_episode", finish_episode);
@@ -22,7 +23,7 @@ namespace experiment{
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);
         static Get_experiment_response get_experiment(const Get_experiment_request &);
-        static void set_tracking_service_ip(const std::string &ip);
+        static bool set_tracking_service_ip(const std::string &ip);
         static int get_port();
     };
 

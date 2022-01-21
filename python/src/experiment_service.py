@@ -10,6 +10,7 @@ class ExperimentService(MessageServer):
     def __init__(self, tracker_ip: str = "127.0.0.1"):
         MessageServer.__init__(self)
         self.tracking_service = None
+        self.router.add_route("set_tracking_service_ip", self.set_tracking_service_ip, str)
         self.router.add_route("start_experiment", self.start_experiment, StartExperimentRequest)
         self.router.add_route("start_episode", self.start_episode, StartEpisodeRequest)
         self.router.add_route("finish_episode", self.finish_episode)
@@ -124,6 +125,7 @@ class ExperimentService(MessageServer):
 
     def set_tracking_service_ip(self, ip: str):
         self.tracking_service_ip = ip
+        return True
 
     @staticmethod
     def port() -> int:

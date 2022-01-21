@@ -49,6 +49,9 @@ class ExperimentClient(MessageClient):
     def finish_episode(self) -> str:
         return self.send_request(Message("finish_episode"), 5000).get_body(bool)
 
+    def set_tracking_service_ip(self, ip) -> str:
+        return self.send_request(Message("set_tracking_service_ip", ip), 5000).get_body(bool)
+
     def finish_experiment(self, experiment_name: str):
         return self.send_request(Message("finish_experiment", FinishExperimentRequest(experiment_name=experiment_name)), 5000).get_body(bool)
 

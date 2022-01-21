@@ -36,5 +36,7 @@ namespace experiment {
 
         bool connect (const std::string &ip);
 
+        bool set_tracking_service_ip(const std::string &ip);
+
     };
 }

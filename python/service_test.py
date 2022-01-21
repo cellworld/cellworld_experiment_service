@@ -27,7 +27,6 @@ service.on_experiment_started = on_experiment_started
 service.on_episode_started = on_episode_started
 service.on_episode_finished = on_episode_finished
 service.on_experiment_finished = on_experiment_finished
-service.set_tracking_service_ip("127.0.0.1")
 service.start()
 print("service running..")
 service.join()
