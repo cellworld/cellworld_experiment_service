@@ -51,6 +51,9 @@ class ExperimentService(MessageServer):
         response = StartExperimentResponse()
         response.experiment_name = new_experiment.name
         response.start_date = new_experiment.start_time
+        response.world = parameters.world
+        response.subject_name = parameters.subject_name
+        response.duration = parameters.duration
         self.broadcast_subscribed(Message("experiment_started", response))
 
         if self.on_experiment_started:

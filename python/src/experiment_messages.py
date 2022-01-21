@@ -16,11 +16,16 @@ class StartExperimentRequest(JsonObject):
 
 
 class StartExperimentResponse(JsonObject):
-    def __init__(self, experiment_name: str = "", start_date: datetime = None):
+    def __init__(self, experiment_name: str = "", start_date: datetime = None, world: World_info = None, subject_name: str = "", duration: int =0):
         self.experiment_name = experiment_name
         if not start_date:
             start_date = datetime.now()
         self.start_date = start_date
+        if not world:
+            world = World_info()
+        self.world = world
+        self.subject_name = subject_name
+        self.duration = duration
 
 
 class StartEpisodeRequest(JsonObject):

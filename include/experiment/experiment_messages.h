@@ -26,6 +26,9 @@ namespace experiment {
                 )
         std::string experiment_name;
         json_cpp::Json_date start_date;
+        cell_world::World_info world;
+        std::string subject_name;
+        int duration;
     };
 
     struct Start_episode_request : json_cpp::Json_object{

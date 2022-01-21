@@ -28,6 +28,9 @@ namespace experiment {
         Start_experiment_response response;
         response.experiment_name = new_experiment.name;
         response.start_date = new_experiment.start_time;
+        response.subject_name = parameters.subject_name;
+        response.world = parameters.world;
+        response.duration = parameters.duration;
         broadcast_subscribed(tcp_messages::Message("experiment_started",response));
         return response;
     }
