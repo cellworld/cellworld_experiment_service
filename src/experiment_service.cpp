@@ -93,7 +93,7 @@ namespace experiment {
     }
 
     int Experiment_service::get_port() {
-        string port_str(std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") ? std::getenv("AGENT_TRACKING_PORT") : "4540");
+        string port_str(std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") ? std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") : "4540");
         return atoi(port_str.c_str());
     }
 
