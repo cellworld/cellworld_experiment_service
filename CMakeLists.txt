@@ -40,3 +40,24 @@ target_link_libraries(experiment_server experiment_service params-cpp)
 ###
 install_dependency(https://github.com/germanespinosa/catch CatchTests)
 test_library(experiment_service catchtests/client_test.cpp)
+
+
+
+###
+### LIBRARY INSTALLATION
+###
+
+include(GNUInstallDirs)
+
+install(TARGETS experiment_service EXPORT Experiment_serviceConfig
+        ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT Experiment_serviceConfig
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/Experiment_service
+        EXPORT_LINK_INTERFACE_LIBRARIES)
+
+export(TARGETS experiment_service FILE Experiment_serviceConfig.cmake)
