@@ -23,6 +23,9 @@ namespace experiment {
         Json_object_members(
                 Add_member(experiment_name);
                 Add_member(start_date);
+                Add_member(world);
+                Add_member(subject_name);
+                Add_member(duration);
                 )
         std::string experiment_name;
         json_cpp::Json_date start_date;

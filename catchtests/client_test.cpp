@@ -23,43 +23,32 @@ struct Client : experiment::Experiment_client {
 };
 
 TEST_CASE("client_test") {
-    auto t1 = thread ([]() {
-        Client client;
-        client.connect("127.0.0.1");
-        client.subscribe();
-        client.join();
-    });
+//    auto t1 = thread ([]() {
+//        Client client;
+//        client.connect("127.0.0.1");
+//        client.subscribe();
+//        client.join();
+//    });
     World_info wi;
     wi.world_configuration = "hexagonal";
     wi.world_implementation = "cv";
     wi.occlusions = "10_05";
     Client client;
     client.connect("127.0.0.1");
+    client.subscribe();
     sleep_for(1s);
-    auto experiment = client.start_experiment(wi,"test_subject",10,"prefix","suffix");
-    sleep_for(1s);
-    client.start_episode(experiment.experiment_name);
-    sleep_for(10s);
-    client.finish_episode();
-    sleep_for(1s);
-    client.start_episode(experiment.experiment_name);
-    sleep_for(10s);
-    client.finish_episode();
-    sleep_for(1s);
-    client.start_episode(experiment.experiment_name);
-    sleep_for(10s);
-    client.finish_episode();
-    sleep_for(1s);
-    client.start_episode(experiment.experiment_name);
-    sleep_for(10s);
-    client.finish_episode();
-    sleep_for(1s);
-    client.start_episode(experiment.experiment_name);
-    sleep_for(10s);
-    client.finish_episode();
+    auto experiment = client.start_experiment(wi,"test_subject",60,"prefix","suffix");
+    while (client.is_active(experiment.experiment_name)) {
+        sleep_for(1s);
+        cout << "starting episode" << endl;
+        client.start_episode(experiment.experiment_name);
+        sleep_for(1s);
+        cout << "finishing episode" << endl;
+        client.finish_episode();
+    }
     sleep_for(1s);
     client.finish_experiment(experiment.experiment_name);
     sleep_for(1s);
     client.disconnect();
-    t1.join();
+//    t1.join();
 }

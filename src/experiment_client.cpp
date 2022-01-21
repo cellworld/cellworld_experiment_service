@@ -14,23 +14,23 @@ namespace experiment {
         parameters.world = world;
         parameters.subject_name = subject_name;
         parameters.duration = duration;
-        return send_request(tcp_messages::Message("start_experiment",parameters)).get_body<Start_experiment_response>();
+        return send_request(tcp_messages::Message("start_experiment",parameters),0).get_body<Start_experiment_response>();
     }
 
     bool Experiment_client::start_episode(const std::string &experiment_name) {
         auto parameters = Start_episode_request();
         parameters.experiment_name = experiment_name;
-        return send_request(tcp_messages::Message("start_episode",parameters)).get_body<bool>();
+        return send_request(tcp_messages::Message("start_episode",parameters),0).get_body<bool>();
     }
 
     bool Experiment_client::finish_episode() {
-        return send_request(tcp_messages::Message("finish_episode")).get_body<bool>();
+        return send_request(tcp_messages::Message("finish_episode"),0).get_body<bool>();
     }
 
     bool Experiment_client::finish_experiment(const std::string &experiment_name) {
         auto parameters = Finish_experiment_request();
         parameters.experiment_name = experiment_name;
-        return send_request(tcp_messages::Message("finish_experiment",parameters)).get_body<bool>();
+        return send_request(tcp_messages::Message("finish_experiment",parameters),0).get_body<bool>();
     }
 
     bool Experiment_client::is_active(const std::string &experiment_name) {
@@ -41,7 +41,7 @@ namespace experiment {
     Get_experiment_response Experiment_client::get_experiment(const std::string &experiment_name) {
         Get_experiment_request request;
         request.experiment_name = experiment_name;
-        return send_request(tcp_messages::Message("get_experiment",request)).get_body<Get_experiment_response>();
+        return send_request(tcp_messages::Message("get_experiment",request),0).get_body<Get_experiment_response>();
     }
 
     bool Experiment_client::connect(const std::string &ip) {
