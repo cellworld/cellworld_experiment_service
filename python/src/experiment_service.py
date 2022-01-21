@@ -3,6 +3,7 @@ from .experiment_messages import *
 from cellworld import *
 from tcp_messages import MessageServer, Message
 from cellworld_tracking import TrackingClient
+from datetime import datetime, timedelta
 
 
 class ExperimentService(MessageServer):
@@ -21,6 +22,10 @@ class ExperimentService(MessageServer):
         self.tracking_client = None
         self.tracking_service_ip = None
         self.on_step = self.__process_step__
+        self.on_experiment_started = None
+        self.on_episode_started = None
+        self.on_episode_finished = None
+        self.on_experiment_finished = None
 
     @staticmethod
     def get_experiment_file(experiment_name: str):
@@ -30,7 +35,6 @@ class ExperimentService(MessageServer):
         return MessageServer.start(self, ExperimentService.port())
 
     def __process_step__(self, step):
-        print(step)
         if self.active_experiment:
             self.active_episode.trajectories.append(step)
 
@@ -48,6 +52,10 @@ class ExperimentService(MessageServer):
         response.experiment_name = new_experiment.name
         response.start_date = new_experiment.start_time
         self.broadcast_subscribed(Message("experiment_started", response))
+
+        if self.on_experiment_started:
+            self.on_experiment_started(response)
+
         return response
 
     def start_episode(self, parameters: StartEpisodeRequest) -> bool:
@@ -55,7 +63,7 @@ class ExperimentService(MessageServer):
             return False
         experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
         if experiment:
-            self.active_experiment = experiment
+            self.active_experiment = experiment.name
             self.active_episode = Episode()
             self.episode_in_progress = True
             if self.tracking_service_ip:
@@ -63,6 +71,8 @@ class ExperimentService(MessageServer):
                 self.tracking_client.connect(self.tracking_service_ip)
                 self.tracking_client.register_consumer(self.__process_step__)
             self.broadcast_subscribed(Message("episode_started", self.active_experiment))
+            if self.on_episode_started:
+                self.on_episode_started(self.active_experiment)
             return True
         return False
 
@@ -72,7 +82,7 @@ class ExperimentService(MessageServer):
 
         experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(self.active_experiment))
         if experiment:
-            self.active_episode.end_date = datetime.now()
+            self.active_episode.end_time = datetime.now()
             experiment.episodes.append(self.active_episode)
             experiment.save(ExperimentService.get_experiment_file(self.active_experiment))
             self.episode_in_progress = False
@@ -81,23 +91,30 @@ class ExperimentService(MessageServer):
                 self.tracking_client.disconnect()
                 self.tracking_client = None
             self.broadcast_subscribed(Message("episode_finished", self.active_experiment))
+            if self.on_episode_finished:
+                self.on_episode_finished(self.active_experiment)
             return True
         return False
 
     def finish_experiment(self, parameters: FinishExperimentRequest) -> bool:
         self.broadcast_subscribed(Message("experiment_finished", parameters))
+        if self.on_experiment_finished:
+            self.on_experiment_finished(parameters)
         return True
 
-    def get_experiment(self, parameters: GetExperimentRequest) -> GetExperimentResponse:
+    @staticmethod
+    def get_experiment(parameters: GetExperimentRequest) -> GetExperimentResponse:
         response = GetExperimentResponse()
-        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(self.active_experiment))
+        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
         if experiment:
             end_time = experiment.start_time + timedelta(seconds=experiment.duration)
-            remaining = (end_time - datetime.now()).seconds
-            if remaining < 0:
+            if end_time < datetime.now():
                 remaining = 0
+            else:
+                remaining = (end_time - datetime.now()).seconds
+            print("remaining time", remaining)
             response.experiment_name = experiment.name
-            response.start_date = experiment.start_date
+            response.start_date = experiment.start_time
             response.duration = experiment.duration
             response.remaining_time = remaining
         return response
