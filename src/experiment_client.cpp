@@ -46,7 +46,7 @@ namespace experiment {
 
     bool Experiment_client::connect(const std::string &ip) {
         auto port = Experiment_service::get_port();
-        tcp_messages::Message_client::connect(ip, port);
+        return tcp_messages::Message_client::connect(ip, port);
     }
 
 }
