@@ -122,6 +122,7 @@ class ExperimentService(MessageServer):
             response.duration = experiment.duration
             response.remaining_time = remaining
             response.subject_name = experiment.subject_name
+            response.episode_count = len(experiment.episodes)
         return response
 
     def set_tracking_service_ip(self, ip: str):

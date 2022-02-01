@@ -23,6 +23,7 @@ def new_connection(conn):
 
 service = ExperimentService()
 service.on_new_connection = new_connection
+#service.set_tracking_service_ip("127.0.0.1")
 service.on_experiment_started = on_experiment_started
 service.on_episode_started = on_episode_started
 service.on_episode_finished = on_episode_finished
