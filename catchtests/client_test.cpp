@@ -23,12 +23,12 @@ struct Client : experiment::Experiment_client {
 };
 
 TEST_CASE("client_test") {
-//    auto t1 = thread ([]() {
-//        Client client;
-//        client.connect("127.0.0.1");
-//        client.subscribe();
-//        client.join();
-//    });
+    auto t1 = thread ([]() {
+        Client client;
+        client.connect("127.0.0.1");
+        client.subscribe();
+        client.join();
+    });
     World_info wi;
     wi.world_configuration = "hexagonal";
     wi.world_implementation = "cv";
