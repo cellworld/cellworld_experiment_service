@@ -121,6 +121,7 @@ class ExperimentService(MessageServer):
             response.start_date = experiment.start_time
             response.duration = experiment.duration
             response.remaining_time = remaining
+            response.subject_name = experiment.subject_name
         return response
 
     def set_tracking_service_ip(self, ip: str):

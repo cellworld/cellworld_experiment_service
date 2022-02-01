@@ -44,11 +44,12 @@ class GetExperimentRequest(JsonObject):
 
 
 class GetExperimentResponse(JsonObject):
-    def __init__(self, experiment_name: str = "", start_date: datetime = None, duration: int = 0, remaining_time: float =0.0, episode_count: int=0):
+    def __init__(self, experiment_name: str = "", start_date: datetime = None, subject_name: str = None, duration: int = 0, remaining_time: float =0.0, episode_count: int=0):
         self.experiment_name = experiment_name
         if not start_date:
             start_date = datetime.now()
         self.start_date = start_date
+        self.subject_name = subject_name
         self.duration = duration
         self.remaining_time = remaining_time
         self.episode_count = episode_count

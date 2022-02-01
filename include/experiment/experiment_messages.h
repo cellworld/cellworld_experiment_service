@@ -59,12 +59,14 @@ namespace experiment {
         Json_object_members(
                 Add_member(experiment_name);
                 Add_member(start_date);
+                Add_member(subject_name);
                 Add_member(duration);
                 Add_member(remaining_time);
                 Add_member(episode_count);
         )
         std::string experiment_name;
         json_cpp::Json_date start_date;
+        std::string subject_name;
         int duration;
         float remaining_time;
         int episode_count;
