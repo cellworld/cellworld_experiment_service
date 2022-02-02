@@ -10,9 +10,10 @@ namespace experiment {
     bool episode_in_progress = false;
     Experiment_tracking_client *tracking_client = nullptr;
     string tracking_service_ip = "";
+    string logs_path = "logs/";
 
     string get_experiment_file(const string &experiment_name){
-        return "logs/" + experiment_name + ".json";
+        return logs_path + experiment_name + ".json";
     }
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {
@@ -99,6 +100,10 @@ namespace experiment {
     int Experiment_service::get_port() {
         string port_str(std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") ? std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") : "4540");
         return atoi(port_str.c_str());
+    }
+
+    void Experiment_service::set_logs_folder(const string &path) {
+        logs_path = path;
     }
 
     void Experiment_tracking_client::on_step(const Step &step) {

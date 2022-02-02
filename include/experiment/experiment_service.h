@@ -17,6 +17,7 @@ namespace experiment{
                 Add_route_with_response("finish_episode", finish_episode);
                 Add_route_with_response("finish_experiment", finish_experiment, Finish_experiment_request);
                 Add_route_with_response("get_experiment", get_experiment, Get_experiment_request);
+                Allow_subscription();
                 )
         Start_experiment_response start_experiment(const Start_experiment_request &);
         bool start_episode(const Start_episode_request &);
@@ -24,6 +25,7 @@ namespace experiment{
         bool finish_experiment(const Finish_experiment_request &);
         static Get_experiment_response get_experiment(const Get_experiment_request &);
         static bool set_tracking_service_ip(const std::string &ip);
+        static void set_logs_folder(const std::string &path);
         static int get_port();
     };
 
