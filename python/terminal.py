@@ -6,6 +6,7 @@ client = ExperimentClient()
 members = [m for m in inspect.getmembers(client) if m[0][0] != "_" and isinstance(m[1],types.MethodType)]
 commands = {}
 a = ""
+#hi
 for member in members:
     try:
         a = inspect.getfullargspec(member[1])
