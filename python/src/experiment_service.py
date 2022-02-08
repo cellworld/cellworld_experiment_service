@@ -111,7 +111,7 @@ class ExperimentService(MessageServer):
         response = GetExperimentResponse()
         experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
         if experiment:
-            end_time = experiment.start_time + timedelta(seconds=experiment.duration)
+            end_time = experiment.start_time + timedelta(minutes=experiment.duration)
             if end_time < datetime.now():
                 remaining = 0
             else:
