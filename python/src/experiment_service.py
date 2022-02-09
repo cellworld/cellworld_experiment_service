@@ -101,10 +101,17 @@ class ExperimentService(MessageServer):
         return False
 
     def finish_experiment(self, parameters: FinishExperimentRequest) -> bool:
-        self.broadcast_subscribed(Message("experiment_finished", parameters))
-        if self.on_experiment_finished:
-            self.on_experiment_finished(parameters)
-        return True
+        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
+        end_time = experiment.start_time + timedelta(minutes=experiment.duration)
+        if experiment:
+            if end_time > datetime.now():
+                experiment.duration = int((datetime.now() - experiment.start_time).seconds/60)
+                experiment.save(ExperimentService.get_experiment_file(parameters.experiment_name))
+            self.broadcast_subscribed(Message("experiment_finished", parameters))
+            if self.on_experiment_finished:
+                self.on_experiment_finished(parameters)
+            return True
+        return False
 
     @staticmethod
     def get_experiment(parameters: GetExperimentRequest) -> GetExperimentResponse:
