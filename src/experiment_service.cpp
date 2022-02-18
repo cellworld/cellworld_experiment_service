@@ -74,11 +74,11 @@ namespace experiment {
 
     bool Experiment_service::finish_experiment(const Finish_experiment_request &parameters) {
         if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
-        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(parameters.experiment_name);
+        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(parameters.experiment_name));
         auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
         float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
         if (remaining>0){
-            experiment.duration = ((float)((json_cpp::Json_date::now()).count() - experiment.start_time)) / 1000) / 60;
+            experiment.duration = ((float)((json_cpp::Json_date::now() - experiment.start_time).count()) / 1000) / 60;
             experiment.save(get_experiment_file(parameters.experiment_name));
         }
         broadcast_subscribed(tcp_messages::Message("experiment_finished",parameters.experiment_name));
