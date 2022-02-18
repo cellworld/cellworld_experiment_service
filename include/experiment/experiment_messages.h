@@ -67,9 +67,9 @@ namespace experiment {
         std::string experiment_name;
         json_cpp::Json_date start_date;
         std::string subject_name;
-        int duration;
+        unsigned int duration;
         float remaining_time;
-        int episode_count;
+        unsigned int episode_count;
     };
 
 }

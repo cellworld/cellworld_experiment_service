@@ -78,7 +78,7 @@ namespace experiment {
         auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
         float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
         if (remaining>0){
-            experiment.duration = ((float)((json_cpp::Json_date::now() - experiment.start_time).count()) / 1000) / 60;
+            experiment.duration = (unsigned int) (((float)(json_cpp::Json_date::now() - experiment.start_time).count()) / 1000 / 60);
             experiment.save(get_experiment_file(parameters.experiment_name));
         }
         broadcast_subscribed(tcp_messages::Message("experiment_finished",parameters.experiment_name));
