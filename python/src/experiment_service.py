@@ -102,8 +102,8 @@ class ExperimentService(MessageServer):
 
     def finish_experiment(self, parameters: FinishExperimentRequest) -> bool:
         experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
-        end_time = experiment.start_time + timedelta(minutes=experiment.duration)
         if experiment:
+            end_time = experiment.start_time + timedelta(minutes=experiment.duration)
             if end_time > datetime.now():
                 experiment.duration = int((datetime.now() - experiment.start_time).seconds/60)
                 experiment.save(ExperimentService.get_experiment_file(parameters.experiment_name))
