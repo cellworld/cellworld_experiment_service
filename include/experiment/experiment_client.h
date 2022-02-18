@@ -38,5 +38,7 @@ namespace experiment {
 
         bool set_tracking_service_ip(const std::string &ip);
 
+        bool capture(unsigned int frame);
+
     };
 }

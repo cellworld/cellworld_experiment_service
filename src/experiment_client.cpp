@@ -54,4 +54,10 @@ namespace experiment {
         return send_request(Message("set_tracking_service_ip", ip)).get_body<bool>();
     }
 
+    bool Experiment_client::capture(unsigned int frame) {
+        Capture_request request;
+        request.frame = frame;
+        return send_request(Message("capture",request)).get_body<bool>();
+    }
+
 }

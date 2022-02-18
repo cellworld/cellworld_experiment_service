@@ -17,6 +17,7 @@ namespace experiment{
                 Add_route_with_response("finish_episode", finish_episode);
                 Add_route_with_response("finish_experiment", finish_experiment, Finish_experiment_request);
                 Add_route_with_response("get_experiment", get_experiment, Get_experiment_request);
+                Add_route_with_response("capture", capture, Capture_request);
                 Allow_subscription();
                 )
         Start_experiment_response start_experiment(const Start_experiment_request &);
@@ -27,6 +28,7 @@ namespace experiment{
         static bool set_tracking_service_ip(const std::string &ip);
         static void set_logs_folder(const std::string &path);
         static int get_port();
+        bool capture(const Capture_request &);
     };
 
     using Experiment_server = tcp_messages::Message_server<Experiment_service>;

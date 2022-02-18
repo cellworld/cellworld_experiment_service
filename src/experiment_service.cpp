@@ -114,6 +114,13 @@ namespace experiment {
         logs_path = path;
     }
 
+    bool Experiment_service::capture(const Capture_request &request) {
+        if (episode_in_progress) {
+            active_episode.captures.push_back(request.frame);
+        }
+        return false;
+    }
+
     void Experiment_tracking_client::on_step(const Step &step) {
         if (episode_in_progress){
             active_episode.trajectories.push_back(step);

@@ -72,4 +72,10 @@ namespace experiment {
         unsigned int episode_count;
     };
 
+    struct Capture_request : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(frame);
+                )
+        unsigned int frame;
+    };
 }
