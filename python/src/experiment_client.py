@@ -39,6 +39,9 @@ class ExperimentClient(MessageClient):
     def connect(self, ip: str = "127.0.0.1"):
         MessageClient.connect(self, ip, ExperimentService.port())
 
+    def capture(self, frame: int) -> bool:
+        return self.send_request(Message("capture", CaptureRequest(frame=frame))).get_body(bool)
+
     def start_experiment(self, prefix: str, suffix: str, world_configuration: str, world_implementation: str, occlusions: str, subject_name: str, duration: int) -> StartExperimentResponse:
         parameters = StartExperimentRequest(prefix=prefix, suffix=suffix, world=World_info(world_configuration, world_implementation, occlusions), subject_name=subject_name, duration=duration)
         return self.send_request(Message("start_experiment", parameters), 5000).get_body(StartExperimentResponse)

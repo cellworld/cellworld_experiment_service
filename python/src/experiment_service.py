@@ -16,6 +16,7 @@ class ExperimentService(MessageServer):
         self.router.add_route("finish_episode", self.finish_episode)
         self.router.add_route("finish_experiment", self.finish_experiment, FinishExperimentRequest)
         self.router.add_route("get_experiment", self.get_experiment, GetExperimentRequest)
+        self.router.add_route("capture", self.capture, CaptureRequest)
         self.allow_subscription = True
         self.active_experiment = None
         self.active_episode = None
@@ -27,6 +28,12 @@ class ExperimentService(MessageServer):
         self.on_episode_started = None
         self.on_episode_finished = None
         self.on_experiment_finished = None
+
+    def capture(self, request: CaptureRequest):
+        if self.episode_in_progress:
+            self.active_episode.captures.append(request.frame)
+            return True
+        return False;
 
     @staticmethod
     def get_experiment_file(experiment_name: str):

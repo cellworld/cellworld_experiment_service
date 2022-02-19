@@ -117,6 +117,7 @@ namespace experiment {
     bool Experiment_service::capture(const Capture_request &request) {
         if (episode_in_progress) {
             active_episode.captures.push_back(request.frame);
+            return true;
         }
         return false;
     }

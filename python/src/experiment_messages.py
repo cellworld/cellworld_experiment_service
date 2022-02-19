@@ -53,3 +53,7 @@ class GetExperimentResponse(JsonObject):
         self.duration = duration
         self.remaining_time = remaining_time
         self.episode_count = episode_count
+
+class CaptureRequest(JsonObject):
+    def __init__(self, frame: int = 0):
+        self.frame = frame
