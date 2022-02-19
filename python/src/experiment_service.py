@@ -32,6 +32,7 @@ class ExperimentService(MessageServer):
     def capture(self, request: CaptureRequest):
         if self.episode_in_progress:
             self.active_episode.captures.append(request.frame)
+            self.broadcast_subscribed(Message("capture", request))
             return True
         return False;
 

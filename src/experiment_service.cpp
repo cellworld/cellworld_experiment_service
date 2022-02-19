@@ -1,5 +1,6 @@
 #include <experiment/experiment_service.h>
 
+using namespace tcp_messages;
 using namespace cell_world;
 using namespace std;
 
@@ -117,6 +118,7 @@ namespace experiment {
     bool Experiment_service::capture(const Capture_request &request) {
         if (episode_in_progress) {
             active_episode.captures.push_back(request.frame);
+            broadcast_subscribed(Message("capture",request));
             return true;
         }
         return false;
