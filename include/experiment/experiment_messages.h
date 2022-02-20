@@ -58,6 +58,7 @@ namespace experiment {
     struct Get_experiment_response : json_cpp::Json_object{
         Json_object_members(
                 Add_member(experiment_name);
+                Add_member(world_info);
                 Add_member(start_date);
                 Add_member(subject_name);
                 Add_member(duration);
@@ -65,6 +66,7 @@ namespace experiment {
                 Add_member(episode_count);
         )
         std::string experiment_name;
+        cell_world::World_info world_info;
         json_cpp::Json_date start_date;
         std::string subject_name;
         unsigned int duration;

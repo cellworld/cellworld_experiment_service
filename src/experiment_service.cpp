@@ -93,6 +93,9 @@ namespace experiment {
         auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
         float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
         if (remaining<0) remaining = 0;
+        response.world_info.world_configuration = experiment.world_configuration_name;
+        response.world_info.world_implementation = experiment.world_implementation_name;
+        response.world_info.occlusions = experiment.occlusions;
         response.experiment_name = experiment.name;
         response.start_date = experiment.start_time;
         response.duration = experiment.duration;
@@ -118,7 +121,7 @@ namespace experiment {
     bool Experiment_service::capture(const Capture_request &request) {
         if (episode_in_progress) {
             active_episode.captures.push_back(request.frame);
-            broadcast_subscribed(Message("capture",request));
+            broadcast_subscribed(Message("capture",request.frame));
             return true;
         }
         return false;

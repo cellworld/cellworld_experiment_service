@@ -32,9 +32,9 @@ class ExperimentService(MessageServer):
     def capture(self, request: CaptureRequest):
         if self.episode_in_progress:
             self.active_episode.captures.append(request.frame)
-            self.broadcast_subscribed(Message("capture", request))
+            self.broadcast_subscribed(Message("capture", request.frame))
             return True
-        return False;
+        return False
 
     @staticmethod
     def get_experiment_file(experiment_name: str):
@@ -133,6 +133,7 @@ class ExperimentService(MessageServer):
                 remaining = (end_time - datetime.now()).seconds
             print("remaining time", remaining)
             response.experiment_name = experiment.name
+            response.world_info = World_info(world_configuration=experiment.world_configuration_name, world_implementation=experiment.world_implementation_name, occlusions=experiment.occlusions)
             response.start_date = experiment.start_time
             response.duration = experiment.duration
             response.remaining_time = remaining

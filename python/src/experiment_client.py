@@ -11,13 +11,19 @@ class ExperimentClient(MessageClient):
         self.router.add_route("episode_started", self.__process_episode_started__, str)
         self.router.add_route("episode_finished", self.__process_episode_finished__, str)
         self.router.add_route("experiment_finished", self.__process_experiment_finished__, str)
+        self.router.add_route("capture", self.__process_capture__, int)
         self.on_experiment_started = None
         self.on_experiment_finished = None
         self.on_episode_started = None
         self.on_episode_finished = None
+        self.on_capture = None
 
     def subscribe(self):
         return self.send_request(Message("!subscribe"), 0).body == "success"
+
+    def __process_capture__(self, frame: int):
+        if self.on_capture:
+            self.on_capture(frame)
 
     def __process_experiment_started__(self, parameters: StartExperimentResponse):
         if self.on_experiment_started:

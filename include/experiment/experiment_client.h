@@ -11,6 +11,7 @@ namespace experiment {
                 Add_route("episode_started", on_episode_started, std::string);
                 Add_route("episode_finished", on_episode_finished);
                 Add_route("experiment_finished", on_experiment_finished, std::string);
+                Add_route("capture", on_capture, int)
         )
 
         virtual void on_experiment_started(const Start_experiment_response &experiment) {};
@@ -20,6 +21,8 @@ namespace experiment {
         virtual void on_episode_finished() {};
 
         virtual void on_experiment_finished(const std::string &experiment_name) {};
+
+        virtual void on_capture(int frame){};
 
         Start_experiment_response start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
                          const std::string &prefix = "", const std::string &suffix = "");
