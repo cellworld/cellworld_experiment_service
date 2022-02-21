@@ -38,7 +38,9 @@ namespace experiment {
         return response;
     }
 
-    bool Experiment_service::start_episode(const Start_episode_request &parameters) {
+    bool Experiment_service::start_episode(const std::string &request) {
+        Start_episode_request parameters;
+        request >> parameters;
         if (episode_in_progress) return false;
         if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
 
