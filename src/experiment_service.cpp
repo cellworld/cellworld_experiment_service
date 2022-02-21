@@ -12,7 +12,7 @@ namespace experiment {
     bool episode_in_progress = false;
     Experiment_tracking_client *tracking_client = nullptr;
     string tracking_service_ip = "";
-    string logs_path = "experiment_logs/";
+    string logs_path = "";
 
     string get_experiment_file(const string &experiment_name){
         return logs_path + experiment_name + ".json";
@@ -20,7 +20,6 @@ namespace experiment {
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {
         Experiment new_experiment;
-        filesystem::create_directory(filesystem::path(logs_path));
         new_experiment.world_configuration_name = parameters.world.world_configuration;
         new_experiment.world_implementation_name = parameters.world.world_implementation;
         new_experiment.occlusions = parameters.world.occlusions;
@@ -118,6 +117,7 @@ namespace experiment {
 
     void Experiment_service::set_logs_folder(const string &path) {
         logs_path = path;
+        filesystem::create_directory(filesystem::path(logs_path));
     }
 
     bool Experiment_service::capture(const Capture_request &request) {
