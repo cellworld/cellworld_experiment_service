@@ -12,14 +12,20 @@ class ExperimentClient(MessageClient):
         self.router.add_route("episode_finished", self.__process_episode_finished__, str)
         self.router.add_route("experiment_finished", self.__process_experiment_finished__, str)
         self.router.add_route("capture", self.__process_capture__, int)
+        self.router.add_route("behavior_set", self.__process_behavior_set__, int)
         self.on_experiment_started = None
         self.on_experiment_finished = None
         self.on_episode_started = None
         self.on_episode_finished = None
         self.on_capture = None
+        self.on_behavior_set = None
 
     def subscribe(self):
         return self.send_request(Message("!subscribe"), 0).body == "success"
+
+    def __process_behavior_set__(self, behavior: int):
+        if self.on_behavior_set:
+            self.on_behavior_set(behavior)
 
     def __process_capture__(self, frame: int):
         if self.on_capture:
@@ -41,6 +47,8 @@ class ExperimentClient(MessageClient):
         if self.on_experiment_finished:
             self.on_experiment_finished(experiment_name)
 
+    def set_behavior(self, behavior: int):
+        return self.send_request(Message("set_behavior", SetBehaviorRequest(behavior=behavior))).get_body(bool)
 
     def connect(self, ip: str = "127.0.0.1"):
         MessageClient.connect(self, ip, ExperimentService.port())

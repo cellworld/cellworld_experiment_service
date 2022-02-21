@@ -47,5 +47,7 @@ namespace experiment {
 
         bool capture(unsigned int frame);
 
+        bool set_behavior(int behavior);
+
     };
 }

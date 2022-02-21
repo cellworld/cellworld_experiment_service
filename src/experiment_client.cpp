@@ -60,4 +60,10 @@ namespace experiment {
         return send_request(Message("capture",request)).get_body<bool>();
     }
 
+    bool Experiment_client::set_behavior(int behavior) {
+        Set_behavior_request request;
+        request.behavior = behavior;
+        return send_request(Message("set_behavior",request)).get_body<bool>();
+    }
+
 }

@@ -16,6 +16,7 @@ class ExperimentService(MessageServer):
         self.router.add_route("finish_episode", self.finish_episode)
         self.router.add_route("finish_experiment", self.finish_experiment, FinishExperimentRequest)
         self.router.add_route("get_experiment", self.get_experiment, GetExperimentRequest)
+        self.router.add_route("set_behavior", self.set_behavior, SetBehaviorRequest)
         self.router.add_route("capture", self.capture, CaptureRequest)
         self.allow_subscription = True
         self.active_experiment = None
@@ -28,6 +29,10 @@ class ExperimentService(MessageServer):
         self.on_episode_started = None
         self.on_episode_finished = None
         self.on_experiment_finished = None
+
+    def set_behavior(self, request: SetBehaviorRequest) -> bool:
+        self.broadcast_subscribed(Message("behavior_set", request.behavior))
+        return True
 
     def capture(self, request: CaptureRequest):
         if self.episode_in_progress:

@@ -33,6 +33,11 @@ class StartEpisodeRequest(JsonObject):
         self.experiment_name = experiment_name
 
 
+class SetBehaviorRequest(JsonObject):
+    def __init__(self, behavior: int = 0):
+        self.behavior = behavior
+
+
 class FinishExperimentRequest(JsonObject):
     def __init__(self, experiment_name: str = ""):
         self.experiment_name = experiment_name
