@@ -55,6 +55,13 @@ namespace experiment {
         std::string experiment_name;
     };
 
+    struct  Set_behavior_request: json_cpp::Json_object {
+        Json_object_members(
+                Add_member(behavior);
+                )
+        int behavior;
+    };
+
     struct Get_experiment_response : json_cpp::Json_object{
         Json_object_members(
                 Add_member(experiment_name);

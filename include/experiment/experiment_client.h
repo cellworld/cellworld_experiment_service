@@ -11,7 +11,9 @@ namespace experiment {
                 Add_route("episode_started", on_episode_started, std::string);
                 Add_route("episode_finished", on_episode_finished);
                 Add_route("experiment_finished", on_experiment_finished, std::string);
-                Add_route("capture", on_capture, int)
+                Add_route("behavior_set", on_behavior_set, int);
+                Add_route("capture", on_capture, int);
+
         )
 
         virtual void on_experiment_started(const Start_experiment_response &experiment) {};
@@ -21,6 +23,8 @@ namespace experiment {
         virtual void on_episode_finished() {};
 
         virtual void on_experiment_finished(const std::string &experiment_name) {};
+
+        virtual void on_behavior_set(int behavior) {};
 
         virtual void on_capture(int frame){};
 

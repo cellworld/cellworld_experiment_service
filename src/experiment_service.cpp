@@ -127,6 +127,11 @@ namespace experiment {
         return false;
     }
 
+    bool Experiment_service::set_behavior(const Set_behavior_request &request) {
+        broadcast_subscribed(Message("behavior_set", request.behavior));
+        return true;
+    }
+
     void Experiment_tracking_client::on_step(const Step &step) {
         if (episode_in_progress){
             active_episode.trajectories.push_back(step);
