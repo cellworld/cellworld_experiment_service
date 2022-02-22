@@ -34,6 +34,9 @@ namespace experiment{
         static int get_port();
         bool capture(const Capture_request &);
         bool set_behavior(const Set_behavior_request &);
+        void unrouted_message(const tcp_messages::Message &message) override{
+            std::cout << message << std::endl;
+        };
     };
 
     using Experiment_server = tcp_messages::Message_server<Experiment_service>;
