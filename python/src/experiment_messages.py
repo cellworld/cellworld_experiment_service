@@ -51,7 +51,7 @@ class GetExperimentRequest(JsonObject):
 class GetExperimentResponse(JsonObject):
     def __init__(self, experiment_name: str = "", world_info: World_info = None, start_date: datetime = None, subject_name: str = "", duration: int = 0, remaining_time: float =0.0, episode_count: int=0):
         self.experiment_name = experiment_name
-        if not self.world_info:
+        if not world_info:
             world_info = World_info()
         self.world_info = world_info
         if not start_date:
