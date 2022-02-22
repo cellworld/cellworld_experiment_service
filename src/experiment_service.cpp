@@ -38,18 +38,18 @@ namespace experiment {
         return response;
     }
 
-    bool Experiment_service::start_episode(const Start_experiment_response &parameters) {
+    bool Experiment_service::start_episode(const Start_episode_request &parameters) {
         if (episode_in_progress) return false;
         if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
 
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
             episode_in_progress = true;
-            if (!tracking_service_ip.empty()) {
-                tracking_client = new Experiment_tracking_client();
-                tracking_client->connect("127.0.0.1");
-                tracking_client->register_consumer();
-            }
+//            if (!tracking_service_ip.empty()) {
+//                tracking_client = new Experiment_tracking_client();
+//                tracking_client->connect(tracking_service_ip);
+//                tracking_client->register_consumer();
+//            }
             broadcast_subscribed(tcp_messages::Message("episode_started",active_experiment));
             return true;
         }
