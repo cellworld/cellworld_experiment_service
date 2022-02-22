@@ -13,15 +13,12 @@ namespace experiment{
         Routes(
                 Add_route_with_response("set_tracking_service_ip", set_tracking_service_ip, std::string);
                 Add_route_with_response("start_experiment", start_experiment, Start_experiment_request);
+                Add_route_with_response("start_episode", start_episode, std::string);
                 Add_route_with_response("finish_episode", finish_episode);
                 Add_route_with_response("finish_experiment", finish_experiment, Finish_experiment_request);
                 Add_route_with_response("get_experiment", get_experiment, Get_experiment_request);
                 Add_route_with_response("capture", capture, Capture_request);
                 Add_route_with_response("set_behavior", set_behavior, Set_behavior_request);
-                //Add_route_with_response("start_episode", start_episode, std::string);
-                if (message.body=="start_episode") {
-                    std::cout << message;
-                }
                 Allow_subscription();
                 )
         Start_experiment_response start_experiment(const Start_experiment_request &);
@@ -34,9 +31,6 @@ namespace experiment{
         static int get_port();
         bool capture(const Capture_request &);
         bool set_behavior(const Set_behavior_request &);
-        void unrouted_message(const tcp_messages::Message &message) override{
-            std::cout << message << std::endl;
-        };
     };
 
     using Experiment_server = tcp_messages::Message_server<Experiment_service>;
