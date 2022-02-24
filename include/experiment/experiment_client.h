@@ -4,6 +4,8 @@
 #include <cell_world.h>
 
 namespace experiment {
+    struct Experiment_server;
+
     struct Experiment_client : tcp_messages::Message_client {
 
         Routes(
@@ -13,7 +15,6 @@ namespace experiment {
                 Add_route("experiment_finished", on_experiment_finished, std::string);
                 Add_route("behavior_set", on_behavior_set, int);
                 Add_route("capture", on_capture, int);
-
         )
 
         virtual void on_experiment_started(const Start_experiment_response &experiment) {};
@@ -43,11 +44,13 @@ namespace experiment {
 
         bool connect (const std::string &ip);
 
-        bool set_tracking_service_ip(const std::string &ip);
-
         bool capture(unsigned int frame);
 
         bool set_behavior(int behavior);
+
+        Experiment_server *local_server = nullptr;
+
+        bool subscribe();
 
     };
 }

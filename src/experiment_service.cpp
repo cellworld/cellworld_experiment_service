@@ -7,12 +7,7 @@ using namespace std;
 
 
 namespace experiment {
-    string active_experiment = "";
-    Episode active_episode;
-    bool episode_in_progress = false;
-    Experiment_tracking_client *tracking_client = nullptr;
-    string tracking_service_ip = "";
-    string logs_path = "";
+    std::string logs_path = "";
 
     string get_experiment_file(const string &experiment_name){
         return logs_path + experiment_name + ".json";
@@ -39,47 +34,28 @@ namespace experiment {
     }
 
     bool Experiment_service::start_episode(const Start_episode_request &parameters) {
-        if (episode_in_progress) return false;
-        if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
-
-            active_experiment = parameters.experiment_name;
-            active_episode = Episode();
-            episode_in_progress = true;
-            broadcast_subscribed(tcp_messages::Message("episode_started",active_experiment));
-            return true;
-        }
-        return false;
+        auto server = (Experiment_server *)_server;
+        return server->start_episode(parameters);
     }
 
     bool Experiment_service::finish_episode() {
-        if (!episode_in_progress) return false;
-        if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
-        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
-        active_episode.end_time = json_cpp::Json_date::now();
-        experiment.episodes.push_back(active_episode);
-        experiment.save(get_experiment_file(active_experiment));
-        episode_in_progress = false;
-        if (tracking_client) {
-            tracking_client->unregister_consumer();
-            tracking_client->disconnect();
-            delete tracking_client;
-            tracking_client = nullptr;
-        }
-        broadcast_subscribed(tcp_messages::Message("episode_finished",active_experiment));
-        return true;
+        auto server = (Experiment_server *)_server;
+        return server->finish_episode();
     }
 
     bool Experiment_service::finish_experiment(const Finish_experiment_request &parameters) {
-        if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
-        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(parameters.experiment_name));
-        auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
-        float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
-        if (remaining>0){
-            experiment.duration = (unsigned int) (((float)(json_cpp::Json_date::now() - experiment.start_time).count()) / 1000 / 60);
-            experiment.save(get_experiment_file(parameters.experiment_name));
-        }
-        broadcast_subscribed(tcp_messages::Message("experiment_finished",parameters.experiment_name));
-        return true;
+        auto server = (Experiment_server *)_server;
+        return server->finish_experiment(parameters);
+    }
+
+    bool Experiment_service::capture(const Capture_request &parameters) {
+        auto server = (Experiment_server *)_server;
+        return server->capture(parameters);
+    }
+
+    bool Experiment_service::set_behavior(const Set_behavior_request &request) {
+        auto server = (Experiment_server *)_server;
+        return server->set_behavior(request);
     }
 
     Get_experiment_response Experiment_service::get_experiment(const Get_experiment_request &parameters) {
@@ -110,27 +86,84 @@ namespace experiment {
         filesystem::create_directory(filesystem::path(logs_path));
     }
 
-    bool Experiment_service::capture(const Capture_request &request) {
-        if (episode_in_progress) {
-            active_episode.captures.push_back(request.frame);
-            broadcast_subscribed(Message("capture",request.frame));
+    void Experiment_server::set_tracking_client(Experiment_tracking_client &new_tracking_client) {
+        new_tracking_client.experiment_server = this;
+        tracking_client = &new_tracking_client;
+
+    }
+
+    void Experiment_tracking_client::on_step(const Step &step) {
+        if (experiment_server->episode_in_progress){
+            experiment_server->active_episode.trajectories.push_back(step);
+        }
+    }
+
+    bool Experiment_server::start_episode(const Start_episode_request &parameters) {
+        if (episode_in_progress) return false;
+        if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
+
+            active_experiment = parameters.experiment_name;
+            active_episode = Episode();
+            episode_in_progress = true;
+            if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_started",active_experiment));
+            for (auto &local_client:subscribed_local_clients) local_client->on_episode_started(active_experiment);
             return true;
         }
         return false;
     }
 
-    bool Experiment_service::set_behavior(const Set_behavior_request &request) {
-        broadcast_subscribed(Message("behavior_set", request.behavior));
+    bool Experiment_server::finish_episode() {
+        if (!episode_in_progress) return false;
+        if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
+        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
+        active_episode.end_time = json_cpp::Json_date::now();
+        experiment.episodes.push_back(active_episode);
+        experiment.save(get_experiment_file(active_experiment));
+        episode_in_progress = false;
+        if (tracking_client) {
+            tracking_client->unregister_consumer();
+            tracking_client->disconnect();
+            delete tracking_client;
+            tracking_client = nullptr;
+        }
+        if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_finished",active_experiment));
+        for (auto &local_client:subscribed_local_clients) local_client->on_episode_finished();
         return true;
     }
 
-    void Experiment_service::set_tracking_client(Experiment_tracking_client &new_tracking_client) {
-        tracking_client = &new_tracking_client;
+    bool Experiment_server::finish_experiment(const Finish_experiment_request &parameters) {
+        if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
+        auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(parameters.experiment_name));
+        auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
+        float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
+        if (remaining>0){
+            experiment.duration = (unsigned int) (((float)(json_cpp::Json_date::now() - experiment.start_time).count()) / 1000 / 60);
+            experiment.save(get_experiment_file(parameters.experiment_name));
+        }
+        if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("experiment_finished",parameters.experiment_name));
+        for (auto &local_client:subscribed_local_clients) local_client->on_experiment_finished(parameters.experiment_name);
+        return true;
     }
 
-    void Experiment_tracking_client::on_step(const Step &step) {
-        if (episode_in_progress){
-            active_episode.trajectories.push_back(step);
+    bool Experiment_server::capture(const Capture_request &request) {
+        if (episode_in_progress) {
+            active_episode.captures.push_back(request.frame);
+            if (!clients.empty()) broadcast_subscribed(Message("capture",request.frame));
+            for (auto &local_client:subscribed_local_clients) local_client->on_capture(request.frame);
+            return true;
+        }
+        return false;
+    }
+
+    bool Experiment_server::set_behavior(const Set_behavior_request &request) {
+        if (!clients.empty()) broadcast_subscribed(Message("behavior_set", request.behavior));
+        for (auto &local_client:subscribed_local_clients) local_client->on_behavior_set(request.behavior);
+        return true;
+    }
+
+    Experiment_server::~Experiment_server() {
+        for (auto local_client: local_clients){
+            delete local_client;
         }
     }
 }

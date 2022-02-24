@@ -2,6 +2,8 @@
 #include <experiment/experiment_service.h>
 #include <experiment/experiment_messages.h>
 #include <cell_world.h>
+#include <vector>
+#include <algorithm>
 
 using namespace cell_world;
 using namespace tcp_messages;
@@ -21,17 +23,29 @@ namespace experiment {
     bool Experiment_client::start_episode(const std::string &experiment_name) {
         auto parameters = Start_episode_request();
         parameters.experiment_name = experiment_name;
-        return send_request(tcp_messages::Message("start_episode",parameters),0).get_body<bool>();
+        if (local_server) {
+            return local_server->start_episode(parameters);
+        } else {
+            return send_request(tcp_messages::Message("start_episode", parameters), 0).get_body<bool>();
+        }
     }
 
     bool Experiment_client::finish_episode() {
-        return send_request(tcp_messages::Message("finish_episode"),0).get_body<bool>();
+        if (local_server) {
+            return local_server->finish_episode();
+        } else {
+            return send_request(tcp_messages::Message("finish_episode"),0).get_body<bool>();
+        }
     }
 
     bool Experiment_client::finish_experiment(const std::string &experiment_name) {
         auto parameters = Finish_experiment_request();
         parameters.experiment_name = experiment_name;
-        return send_request(tcp_messages::Message("finish_experiment",parameters),0).get_body<bool>();
+        if (local_server) {
+            return local_server->finish_experiment(parameters);
+        } else {
+            return send_request(tcp_messages::Message("finish_experiment",parameters),0).get_body<bool>();
+        }
     }
 
     bool Experiment_client::is_active(const std::string &experiment_name) {
@@ -42,7 +56,11 @@ namespace experiment {
     Get_experiment_response Experiment_client::get_experiment(const std::string &experiment_name) {
         Get_experiment_request request;
         request.experiment_name = experiment_name;
-        return send_request(tcp_messages::Message("get_experiment",request),0).get_body<Get_experiment_response>();
+        if (local_server) {
+            return Experiment_service::get_experiment(request);
+        } else {
+            return send_request(tcp_messages::Message("get_experiment",request),0).get_body<Get_experiment_response>();
+        }
     }
 
     bool Experiment_client::connect(const std::string &ip) {
@@ -50,20 +68,32 @@ namespace experiment {
         return tcp_messages::Message_client::connect(ip, port);
     }
 
-    bool Experiment_client::set_tracking_service_ip(const std::string &ip) {
-        return send_request(Message("set_tracking_service_ip", ip)).get_body<bool>();
-    }
-
     bool Experiment_client::capture(unsigned int frame) {
         Capture_request request;
         request.frame = frame;
-        return send_request(Message("capture",request)).get_body<bool>();
+        if (local_server) {
+            return local_server->capture(request);
+        } else {
+            return send_request(Message("capture",request)).get_body<bool>();
+        }
     }
 
     bool Experiment_client::set_behavior(int behavior) {
         Set_behavior_request request;
         request.behavior = behavior;
-        return send_request(Message("set_behavior",request)).get_body<bool>();
+        if (local_server) {
+            return local_server->set_behavior(request);
+        } else {
+            return send_request(Message("set_behavior",request)).get_body<bool>();
+        }
     }
 
+    bool Experiment_client::subscribe() {
+        if (local_server) {
+            local_server->subscribed_local_clients.push_back(this);
+            return true;
+        } else {
+            return tcp_messages::Message_client::subscribe();
+        }
+    }
 }

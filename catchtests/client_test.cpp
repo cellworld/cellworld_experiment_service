@@ -1,5 +1,6 @@
 #include <catch.h>
 #include <experiment.h>
+#include <thread>
 
 using namespace cell_world;
 using namespace experiment;
@@ -23,22 +24,59 @@ struct Client : experiment::Experiment_client {
     string t;
 };
 
-TEST_CASE("client_test") {
-    auto t1 = thread ([]() {
-        Client client;
+//TEST_CASE("client_test") {
+//    auto t1 = thread ([]() {
+//        Client client;
+//        client.t = "INNER";
+//        client.connect("127.0.0.1");
+//        client.subscribe();
+//        client.join();
+//    });
+//    World_info wi;
+//    wi.world_configuration = "hexagonal";
+//    wi.world_implementation = "cv";
+//    wi.occlusions = "10_05";
+//    Client client;
+//    client.connect("127.0.0.1");
+//    client.t = "OUTER";
+//    //client.subscribe();
+//    sleep_for(1s);
+//    auto experiment = client.start_experiment(wi,"test_subject",60,"prefix","suffix");
+//    while (client.is_active(experiment.experiment_name)) {
+//        sleep_for(1s);
+//        cout << "starting episode" << endl;
+//        client.start_episode(experiment.experiment_name);
+//        sleep_for(1s);
+//        cout << "finishing episode" << endl;
+//        client.finish_episode();
+//    }
+//    sleep_for(1s);
+//    client.finish_experiment(experiment.experiment_name);
+//    sleep_for(1s);
+//    client.disconnect();
+//    t1.join();
+//}
+
+TEST_CASE("local client_test") {
+    Experiment_server server;
+    Experiment_service::set_logs_folder("experiment_logs/");
+
+    server.start(Experiment_service::get_port());
+
+    auto t1 = thread ([](Experiment_server &server) {
+        auto &client = server.create_local_client<Client>();
         client.t = "INNER";
-        client.connect("127.0.0.1");
         client.subscribe();
         client.join();
-    });
+    }, std::ref(server));
+
     World_info wi;
     wi.world_configuration = "hexagonal";
     wi.world_implementation = "cv";
     wi.occlusions = "10_05";
-    Client client;
-    client.connect("127.0.0.1");
+    auto &client = server.create_local_client<Client>();
     client.t = "OUTER";
-    //client.subscribe();
+    client.subscribe();
     sleep_for(1s);
     auto experiment = client.start_experiment(wi,"test_subject",60,"prefix","suffix");
     while (client.is_active(experiment.experiment_name)) {
@@ -53,5 +91,5 @@ TEST_CASE("client_test") {
     client.finish_experiment(experiment.experiment_name);
     sleep_for(1s);
     client.disconnect();
-    t1.join();
+    server.join();
 }
