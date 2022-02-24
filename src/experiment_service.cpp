@@ -45,11 +45,6 @@ namespace experiment {
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
             episode_in_progress = true;
-//            if (!tracking_service_ip.empty()) {
-//                tracking_client = new Experiment_tracking_client();
-//                tracking_client->connect(tracking_service_ip);
-//                tracking_client->register_consumer();
-//            }
             broadcast_subscribed(tcp_messages::Message("episode_started",active_experiment));
             return true;
         }
@@ -105,11 +100,6 @@ namespace experiment {
         return response;
     }
 
-    bool Experiment_service::set_tracking_service_ip(const string &ip) {
-        tracking_service_ip = ip;
-        return true;
-    }
-
     int Experiment_service::get_port() {
         string port_str(std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") ? std::getenv("CELLWORLD_EXPERIMENT_SERVICE_PORT") : "4540");
         return atoi(port_str.c_str());
@@ -132,6 +122,10 @@ namespace experiment {
     bool Experiment_service::set_behavior(const Set_behavior_request &request) {
         broadcast_subscribed(Message("behavior_set", request.behavior));
         return true;
+    }
+
+    void Experiment_service::set_tracking_client(Experiment_tracking_client &new_tracking_client) {
+        tracking_client = &new_tracking_client;
     }
 
     void Experiment_tracking_client::on_step(const Step &step) {
