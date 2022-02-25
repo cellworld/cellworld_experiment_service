@@ -37,6 +37,7 @@ namespace experiment{
 
     struct Experiment_server : tcp_messages::Message_server<Experiment_service> {
         ~Experiment_server();
+        Start_experiment_response start_experiment(const Start_experiment_request &);
         bool start_episode(const Start_episode_request &);
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);
@@ -44,21 +45,41 @@ namespace experiment{
         bool set_behavior(const Set_behavior_request &);
         void set_tracking_client(Experiment_tracking_client &);
 
-        template<class T>
-        T &create_local_client(){
-            static_assert(std::is_base_of<Experiment_client, T>::value, "T must inherit from Key");
-            auto new_local_client = new T();
-            local_clients.push_back((Experiment_client *) new_local_client);
-            new_local_client->local_server = this;
-            return *new_local_client;
-        }
-        std::vector<Experiment_client *> local_clients;
-        std::vector<Experiment_client *> subscribed_local_clients;
 
         std::string active_experiment = "";
         cell_world::Episode active_episode;
         bool episode_in_progress = false;
         Experiment_tracking_client *tracking_client = nullptr;
         std::string tracking_service_ip = "";
+
+
+        template< typename T, typename... Ts>
+        T &create_local_client(Ts... vs){
+            static_assert(std::is_base_of<Experiment_client, T>::value, "T must inherit from Tracking_client");
+            auto new_local_client = new T{ vs... };
+            local_clients.push_back((Experiment_client *) new_local_client);
+            new_local_client->local_server = this;
+            return *new_local_client;
+        }
+
+        bool subscribe_local( Experiment_client *client) {
+            subscribed_local_clients.push_back(client);
+            return true;
+        }
+
+        bool unsubscribe_local(Experiment_client *client) {
+            subscribed_local_clients.erase(std::remove(subscribed_local_clients.begin(), subscribed_local_clients.end(), client));
+            return true;
+        }
+
+        bool remove_local_client(Experiment_client *client) {
+            subscribed_local_clients.erase(std::remove(subscribed_local_clients.begin(), subscribed_local_clients.end(), client));
+            local_clients.erase(std::remove(local_clients.begin(), local_clients.end(), client));
+            delete client;
+            return true;
+        }
+
+        std::vector<Experiment_client * > local_clients;
+        std::vector<Experiment_client * > subscribed_local_clients;
     };
 }

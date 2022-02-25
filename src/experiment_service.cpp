@@ -14,23 +14,8 @@ namespace experiment {
     }
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {
-        Experiment new_experiment;
-        new_experiment.world_configuration_name = parameters.world.world_configuration;
-        new_experiment.world_implementation_name = parameters.world.world_implementation;
-        new_experiment.occlusions = parameters.world.occlusions;
-        new_experiment.duration = parameters.duration;
-        new_experiment.subject_name = parameters.subject_name;
-        new_experiment.start_time = json_cpp::Json_date::now();
-        new_experiment.set_name(parameters.prefix, parameters.suffix);
-        new_experiment.save(get_experiment_file(new_experiment.name));
-        Start_experiment_response response;
-        response.experiment_name = new_experiment.name;
-        response.start_date = new_experiment.start_time;
-        response.subject_name = parameters.subject_name;
-        response.world = parameters.world;
-        response.duration = parameters.duration;
-        broadcast_subscribed(tcp_messages::Message("experiment_started",response));
-        return response;
+        auto server = (Experiment_server *)_server;
+        return server->start_experiment(parameters);
     }
 
     bool Experiment_service::start_episode(const Start_episode_request &parameters) {
@@ -165,5 +150,25 @@ namespace experiment {
         for (auto local_client: local_clients){
             delete local_client;
         }
+    }
+
+    Start_experiment_response Experiment_server::start_experiment(const Start_experiment_request &parameters) {
+        Experiment new_experiment;
+        new_experiment.world_configuration_name = parameters.world.world_configuration;
+        new_experiment.world_implementation_name = parameters.world.world_implementation;
+        new_experiment.occlusions = parameters.world.occlusions;
+        new_experiment.duration = parameters.duration;
+        new_experiment.subject_name = parameters.subject_name;
+        new_experiment.start_time = json_cpp::Json_date::now();
+        new_experiment.set_name(parameters.prefix, parameters.suffix);
+        new_experiment.save(get_experiment_file(new_experiment.name));
+        Start_experiment_response response;
+        response.experiment_name = new_experiment.name;
+        response.start_date = new_experiment.start_time;
+        response.subject_name = parameters.subject_name;
+        response.world = parameters.world;
+        response.duration = parameters.duration;
+        broadcast_subscribed(tcp_messages::Message("experiment_started",response));
+        return response;
     }
 }

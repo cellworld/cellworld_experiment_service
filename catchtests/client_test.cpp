@@ -60,7 +60,6 @@ struct Client : experiment::Experiment_client {
 TEST_CASE("local client_test") {
     Experiment_server server;
     Experiment_service::set_logs_folder("experiment_logs/");
-
     server.start(Experiment_service::get_port());
 
     auto t1 = thread ([](Experiment_server &server) {
@@ -77,19 +76,24 @@ TEST_CASE("local client_test") {
     auto &client = server.create_local_client<Client>();
     client.t = "OUTER";
     client.subscribe();
-    sleep_for(1s);
-    auto experiment = client.start_experiment(wi,"test_subject",60,"prefix","suffix");
+    auto experiment = client.start_experiment(wi,"test_subject",1,"prefix","suffix");
     while (client.is_active(experiment.experiment_name)) {
-        sleep_for(1s);
         cout << "starting episode" << endl;
         client.start_episode(experiment.experiment_name);
-        sleep_for(1s);
         cout << "finishing episode" << endl;
         client.finish_episode();
     }
     sleep_for(1s);
     client.finish_experiment(experiment.experiment_name);
     sleep_for(1s);
-    client.disconnect();
-    server.join();
 }
+
+//
+//template< typename T, typename... Ts>
+//T Make(Ts... vs) {
+//    return T{ vs... };
+//}
+//
+//TEST_CASE("variadic"){
+//    cout << Make<Coordinates>() << endl;
+//}

@@ -52,5 +52,7 @@ namespace experiment {
 
         bool subscribe();
 
+        bool unsubscribe();
+
     };
 }

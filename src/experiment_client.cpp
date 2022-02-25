@@ -7,6 +7,7 @@
 
 using namespace cell_world;
 using namespace tcp_messages;
+using namespace std;
 
 namespace experiment {
     Start_experiment_response Experiment_client::start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
@@ -17,7 +18,11 @@ namespace experiment {
         parameters.world = world;
         parameters.subject_name = subject_name;
         parameters.duration = duration;
-        return send_request(tcp_messages::Message("start_experiment",parameters),0).get_body<Start_experiment_response>();
+        if (local_server) {
+            return local_server->start_experiment(parameters);
+        } else {
+            return send_request(tcp_messages::Message("start_experiment",parameters),0).get_body<Start_experiment_response>();
+        }
     }
 
     bool Experiment_client::start_episode(const std::string &experiment_name) {
@@ -50,6 +55,7 @@ namespace experiment {
 
     bool Experiment_client::is_active(const std::string &experiment_name) {
         Get_experiment_response response = get_experiment(experiment_name);
+        cout << "REMAINING TIME" << response.remaining_time;
         return response.remaining_time > 0;
     }
 
@@ -88,12 +94,22 @@ namespace experiment {
         }
     }
 
+
     bool Experiment_client::subscribe() {
         if (local_server) {
-            local_server->subscribed_local_clients.push_back(this);
-            return true;
+            return local_server->subscribe_local(this);
+
         } else {
-            return tcp_messages::Message_client::subscribe();
+            return Message_client::subscribe();
+        }
+    }
+
+    bool Experiment_client::unsubscribe() {
+        if (local_server) {
+            return local_server->unsubscribe_local(this);
+
+        } else {
+            return Message_client::unsubscribe();
         }
     }
 }
