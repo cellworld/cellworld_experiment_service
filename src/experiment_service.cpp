@@ -168,7 +168,8 @@ namespace experiment {
         response.subject_name = parameters.subject_name;
         response.world = parameters.world;
         response.duration = parameters.duration;
-        broadcast_subscribed(tcp_messages::Message("experiment_started",response));
+        if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("experiment_started",response));
+        for (auto &local_client:subscribed_local_clients) local_client->on_experiment_started(response);
         return response;
     }
 }
