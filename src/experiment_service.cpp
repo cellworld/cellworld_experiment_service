@@ -86,7 +86,6 @@ namespace experiment {
     bool Experiment_server::start_episode(const Start_episode_request &parameters) {
         if (episode_in_progress) return false;
         if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
-
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
             episode_in_progress = true;
@@ -105,12 +104,6 @@ namespace experiment {
         experiment.episodes.push_back(active_episode);
         experiment.save(get_experiment_file(active_experiment));
         episode_in_progress = false;
-        if (tracking_client) {
-            tracking_client->unregister_consumer();
-            tracking_client->disconnect();
-            delete tracking_client;
-            tracking_client = nullptr;
-        }
         if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_finished",active_experiment));
         for (auto &local_client:subscribed_local_clients) local_client->on_episode_finished();
         return true;
