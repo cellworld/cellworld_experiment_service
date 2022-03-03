@@ -55,7 +55,6 @@ namespace experiment {
 
     bool Experiment_client::is_active(const std::string &experiment_name) {
         Get_experiment_response response = get_experiment(experiment_name);
-        cout << "REMAINING TIME" << response.remaining_time;
         return response.remaining_time > 0;
     }
 
