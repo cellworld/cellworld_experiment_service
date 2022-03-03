@@ -51,7 +51,7 @@ class ExperimentClient(MessageClient):
         return self.send_request(Message("set_behavior", SetBehaviorRequest(behavior=behavior))).get_body(bool)
 
     def connect(self, ip: str = "127.0.0.1"):
-        MessageClient.connect(self, ip, ExperimentService.port())
+        return MessageClient.connect(self, ip, ExperimentService.port())
 
     def capture(self, frame: int) -> bool:
         return self.send_request(Message("capture", CaptureRequest(frame=frame))).get_body(bool)

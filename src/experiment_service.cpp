@@ -10,7 +10,7 @@ namespace experiment {
     std::string logs_path = "";
 
     string get_experiment_file(const string &experiment_name){
-        return logs_path + experiment_name + ".json";
+        return logs_path + experiment_name + "_experiment.json";
     }
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {

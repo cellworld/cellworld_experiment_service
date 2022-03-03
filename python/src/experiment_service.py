@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 
 
 class ExperimentService(MessageServer):
+    logs_folder = ""
+
     def __init__(self, tracker_ip: str = "127.0.0.1"):
         MessageServer.__init__(self)
         self.tracking_service = None
@@ -43,7 +45,7 @@ class ExperimentService(MessageServer):
 
     @staticmethod
     def get_experiment_file(experiment_name: str):
-        return "logs/" + experiment_name + ".json"
+        return ExperimentService.logs_folder + experiment_name + "_experiment.json"
 
     def start(self):
         return MessageServer.start(self, ExperimentService.port())
