@@ -51,6 +51,8 @@ namespace experiment {
 
         bool set_behavior(int behavior);
 
+        bool prey_enter_arena();
+
         Experiment_server *local_server = nullptr;
 
         bool subscribe();

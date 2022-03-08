@@ -111,4 +111,13 @@ namespace experiment {
             return Message_client::unsubscribe();
         }
     }
+
+    bool Experiment_client::prey_enter_arena() {
+        if (local_server) {
+            return local_server->prey_enter_arena();
+
+        } else {
+            return send_request(Message("prey_enter_arena")).get_body<bool>();
+        }
+    }
 }
