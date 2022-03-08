@@ -43,6 +43,11 @@ namespace experiment {
         return server->set_behavior(request);
     }
 
+    bool Experiment_service::prey_enter_arena() {
+        auto server = (Experiment_server *)_server;
+        return server->prey_enter_arena();
+    }
+
     Get_experiment_response Experiment_service::get_experiment(const Get_experiment_request &parameters) {
         Get_experiment_response response;
         if (!cell_world::file_exists(get_experiment_file(parameters.experiment_name))) return response;
@@ -138,6 +143,13 @@ namespace experiment {
         for (auto &local_client:subscribed_local_clients) local_client->on_behavior_set(request.behavior);
         return true;
     }
+
+    bool Experiment_server::prey_enter_arena() {
+        if (!clients.empty()) broadcast_subscribed(Message("prey_entered_arena"));
+        for (auto &local_client:subscribed_local_clients) local_client->on_prey_entered_arena();
+        return true;
+    }
+
 
     Experiment_server::~Experiment_server() {
         for (auto local_client: local_clients){

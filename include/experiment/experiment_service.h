@@ -20,6 +20,7 @@ namespace experiment{
                 Add_route_with_response("get_experiment", get_experiment, Get_experiment_request);
                 Add_route_with_response("capture", capture, Capture_request);
                 Add_route_with_response("set_behavior", set_behavior, Set_behavior_request);
+                Add_route_with_response("prey_enter_arena", prey_enter_arena);
                 Allow_subscription();
                 )
 
@@ -27,6 +28,7 @@ namespace experiment{
         bool start_episode(const Start_episode_request &);
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);
+        bool prey_enter_arena();
         static Get_experiment_response get_experiment(const Get_experiment_request &);
 
         static void set_logs_folder(const std::string &path);
@@ -44,6 +46,7 @@ namespace experiment{
         bool capture(const Capture_request &);
         bool set_behavior(const Set_behavior_request &);
         void set_tracking_client(Experiment_tracking_client &);
+        bool prey_enter_arena();
 
 
         std::string active_experiment = "";
