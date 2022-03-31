@@ -26,7 +26,7 @@ class ExperimentClient(MessageClient):
     def subscribe(self):
         return self.send_request(Message("!subscribe"), 0).body == "success"
 
-    def __prey_entered_arena__(self):
+    def __prey_entered_arena__(self, m):
         if self.on_prey_entered_arena:
             self.on_prey_entered_arena()
 
