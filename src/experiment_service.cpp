@@ -63,6 +63,7 @@ namespace experiment {
         response.duration = experiment.duration;
         response.episode_count = experiment.episodes.size();
         response.remaining_time = remaining;
+        response.subject_name = experiment.subject_name;
         return response;
     }
 
