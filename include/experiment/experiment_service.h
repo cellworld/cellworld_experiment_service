@@ -84,5 +84,6 @@ namespace experiment{
 
         std::vector<Experiment_client * > local_clients;
         std::vector<Experiment_client * > subscribed_local_clients;
+        std::mutex step_insertion_mtx;
     };
 }

@@ -85,7 +85,9 @@ namespace experiment {
 
     void Experiment_tracking_client::on_step(const Step &step) {
         if (experiment_server->episode_in_progress){
+            experiment_server->step_insertion_mtx.lock();
             experiment_server->active_episode.trajectories.push_back(step);
+            experiment_server->step_insertion_mtx.unlock();
         }
     }
 
@@ -94,7 +96,7 @@ namespace experiment {
         if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
-            active_episode.trajectories.reserve(50000);
+            //active_episode.trajectories.reserve(50000);
             episode_in_progress = true;
             if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_started",active_experiment));
             for (auto &local_client:subscribed_local_clients) local_client->on_episode_started(active_experiment);
