@@ -9,37 +9,35 @@ project(experiment_service
 
 find_package(Dependencies)
 
-install_dependency(https://github.com/germanespinosa/tcp-messages Tcp_messages)
-install_dependency(https://github.com/germanespinosa/agent_tracking Agent_tracking)
-install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
-install_dependency(https://github.com/germanespinosa/params-cpp Params-cpp)
-
 string(APPEND CMAKE_CXX_FLAGS " -fno-strict-aliasing -pthread ")
 
-dependency_include(include)
-dependency_include(dependencies/params-cpp/include)
+include_directories(include)
 
 set(experiment_service_files
         src/experiment_client.cpp
         src/experiment_service.cpp
         )
 
+
+install_git_dependency(Agent_tracking https://github.com/germanespinosa/agent_tracking
+        CMAKE_PROJECT )
+
 add_library(experiment_service ${experiment_service_files})
 
-target_link_libraries( experiment_service
-        LINK_PUBLIC
-        cellworld
-        agent_tracking )
-
-add_executable(experiment_server src/tools/server.cpp)
-
-target_link_libraries(experiment_server experiment_service params-cpp)
+#
+#add_executable(experiment_server src/tools/server.cpp)
+#
+#target_link_libraries(experiment_server
+#        PUBLIC
+#        experiment_service
+#        params-cpp
+#        json-cpp )
 
 ###
 ### TESTS
 ###
-install_dependency(https://github.com/germanespinosa/catch CatchTests)
-test_library(experiment_service catchtests/client_test.cpp)
+#install_dependency(https://github.com/germanespinosa/catch CatchTests)
+#test_library(experiment_service catchtests/client_test.cpp)
 
 
 
