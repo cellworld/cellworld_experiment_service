@@ -7,7 +7,23 @@ project(experiment_service
         DESCRIPTION "experiment services"
         LANGUAGES CXX)
 
-find_package(Dependencies)
+####
+#### DEPENDENCIES
+####
+
+find_package (Dependencies QUIET)
+
+if (NOT ${Dependencies_FOUND})
+    if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/DependenciesConfig.cmake)
+        file(DOWNLOAD https://raw.githubusercontent.com/germanespinosa/dependencies/main/DependenciesConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/DependenciesConfig.cmake)
+    endif()
+    set(Dependencies_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    find_package (Dependencies REQUIRED)
+endif()
+
+####
+#### END DEPENDENCIES
+####
 
 string(APPEND CMAKE_CXX_FLAGS " -fno-strict-aliasing -pthread ")
 
