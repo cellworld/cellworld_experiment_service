@@ -59,6 +59,6 @@ namespace experiment {
 
         bool unsubscribe();
 
-        virtual ~Experiment_client();
+        virtual ~Experiment_client() = default;
     };
 }
