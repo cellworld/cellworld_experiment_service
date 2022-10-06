@@ -18,19 +18,19 @@ namespace experiment {
                 Add_route("prey_entered_arena", on_prey_entered_arena);
         )
 
-        virtual void on_experiment_started(const Start_experiment_response &experiment) {};
+        virtual void on_experiment_started(const Start_experiment_response &) {};
 
-        virtual void on_episode_started(const std::string &experiment_name) {};
+        virtual void on_episode_started(const std::string &) {};
 
         virtual void on_episode_finished() {};
 
-        virtual void on_experiment_finished(const std::string &experiment_name) {};
+        virtual void on_experiment_finished(const std::string &) {};
 
-        virtual void on_behavior_set(int behavior) {};
+        virtual void on_behavior_set(int) {};
 
         virtual void on_prey_entered_arena() {};
 
-        virtual void on_capture(int frame){};
+        virtual void on_capture(int){};
 
         Start_experiment_response start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
                          const std::string &prefix = "", const std::string &suffix = "");
@@ -59,5 +59,6 @@ namespace experiment {
 
         bool unsubscribe();
 
+        virtual ~Experiment_client();
     };
 }
