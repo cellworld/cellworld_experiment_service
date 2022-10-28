@@ -32,6 +32,8 @@ namespace experiment {
 
         virtual void on_capture(int){};
 
+        virtual void on_human_intervention(bool){};
+
         Start_experiment_response start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
                          const std::string &prefix = "", const std::string &suffix = "");
 
@@ -48,6 +50,8 @@ namespace experiment {
         bool connect (const std::string &ip);
 
         bool capture(unsigned int frame);
+
+        bool human_intervention(bool);
 
         bool set_behavior(int behavior);
 

@@ -9,8 +9,12 @@ using namespace std;
 namespace experiment {
     std::string logs_path = "";
 
+    string get_experiment_prefix(const string &experiment_name){
+        return experiment_name.substr(0,experiment_name.find('_'));
+    }
+
     string get_experiment_file(const string &experiment_name){
-        return logs_path + experiment_name + "_experiment.json";
+        return logs_path + '/' + get_experiment_prefix(experiment_name) + '/' + experiment_name + "_experiment.json";
     }
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {
@@ -162,6 +166,7 @@ namespace experiment {
     }
 
     Start_experiment_response Experiment_server::start_experiment(const Start_experiment_request &parameters) {
+        std::filesystem::create_directories(logs_path + '/' + parameters.prefix);
         Experiment new_experiment;
         new_experiment.world_configuration_name = parameters.world.world_configuration;
         new_experiment.world_implementation_name = parameters.world.world_implementation;
@@ -180,5 +185,16 @@ namespace experiment {
         if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("experiment_started",response));
         for (auto &local_client:subscribed_local_clients) local_client->on_experiment_started(response);
         return response;
+    }
+
+    bool Experiment_service::human_intervention(const Human_intervention_request &request) {
+        auto server = (Experiment_server *)_server;
+        return server->prey_enter_arena();
+    }
+
+    bool Experiment_server::human_intervention(const Human_intervention_request &request) {
+        if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("human_intervention",request));
+        for (auto &local_client:subscribed_local_clients) local_client->on_human_intervention(request.active);
+        return false;
     }
 }

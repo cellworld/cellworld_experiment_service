@@ -87,4 +87,11 @@ namespace experiment {
                 )
         unsigned int frame;
     };
+
+    struct Human_intervention_request : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(active);
+        )
+        bool active;
+    };
 }

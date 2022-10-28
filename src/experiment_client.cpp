@@ -120,4 +120,14 @@ namespace experiment {
             return send_request(Message("prey_enter_arena")).get_body<bool>();
         }
     }
+
+    bool Experiment_client::human_intervention(bool active) {
+        Human_intervention_request r;
+        r.active = active;
+        if (local_server) {
+            return local_server->human_intervention(r);
+        } else {
+            return send_request(Message("human_intervention", r)).get_body<bool>();
+        }
+    }
 }
