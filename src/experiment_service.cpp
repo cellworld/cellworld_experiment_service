@@ -14,7 +14,7 @@ namespace experiment {
     }
 
     string get_experiment_file(const string &experiment_name){
-        return logs_path + '/' + get_experiment_prefix(experiment_name) + '/' + experiment_name + "_experiment.json";
+        return logs_path + get_experiment_prefix(experiment_name) + '/' + experiment_name + "/" + experiment_name + "_experiment.json";
     }
 
     Start_experiment_response Experiment_service::start_experiment(const Start_experiment_request &parameters) {
@@ -175,6 +175,7 @@ namespace experiment {
         new_experiment.subject_name = parameters.subject_name;
         new_experiment.start_time = json_cpp::Json_date::now();
         new_experiment.set_name(parameters.prefix, parameters.suffix);
+        std::filesystem::create_directories(logs_path + '/' + parameters.prefix + "/" + new_experiment.name);
         new_experiment.save(get_experiment_file(new_experiment.name));
         Start_experiment_response response;
         response.experiment_name = new_experiment.name;
