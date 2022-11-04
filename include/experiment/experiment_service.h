@@ -14,6 +14,7 @@ namespace experiment{
     struct Experiment_service : tcp_messages::Message_service {
         Routes(
                 Add_route_with_response("start_experiment", start_experiment, Start_experiment_request);
+                Add_route_with_response("resume_experiment", resume_experiment, Resume_experiment_request);
                 Add_route_with_response("start_episode", start_episode, Start_episode_request);
                 Add_route_with_response("finish_episode", finish_episode);
                 Add_route_with_response("finish_experiment", finish_experiment, Finish_experiment_request);
@@ -26,6 +27,7 @@ namespace experiment{
                 )
 
         Start_experiment_response start_experiment(const Start_experiment_request &);
+        Resume_experiment_response resume_experiment(const Resume_experiment_request &);
         bool start_episode(const Start_episode_request &);
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);
@@ -42,6 +44,7 @@ namespace experiment{
     struct Experiment_server : tcp_messages::Message_server<Experiment_service> {
         ~Experiment_server();
         Start_experiment_response start_experiment(const Start_experiment_request &);
+        Resume_experiment_response resume_experiment(const Resume_experiment_request &);
         bool start_episode(const Start_episode_request &);
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);

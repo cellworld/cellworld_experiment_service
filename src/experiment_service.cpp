@@ -198,4 +198,37 @@ namespace experiment {
         for (auto &local_client:subscribed_local_clients) local_client->on_human_intervention(request.active);
         return false;
     }
+
+    Resume_experiment_response Experiment_service::resume_experiment(const Resume_experiment_request &parameters) {
+        auto server = (Experiment_server *)_server;
+        return server->resume_experiment(parameters);
+    }
+
+    Resume_experiment_response Experiment_server::resume_experiment(const Resume_experiment_request &parameters) {
+        Resume_experiment_response r;
+        if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
+            auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
+            // state the interruption as an empty episode
+            active_episode = Episode();
+            active_episode.start_time = experiment.episodes.back().start_time;
+            active_episode.end_time = json_cpp::Json_date::now();
+            experiment.episodes.push_back(active_episode);
+            //
+            experiment.duration += parameters.duration_extension;
+            experiment.save(get_experiment_file(active_experiment)); // saves the interruption and the extension to file
+            r.experiment_name = parameters.experiment_name;
+            r.world.world_configuration = experiment.world_configuration_name;
+            r.world.world_implementation = experiment.world_implementation_name;
+            r.world.occlusions = experiment.occlusions;
+            r.duration = experiment.duration;
+            r.start_date = experiment.start_time;
+            r.subject_name = experiment.subject_name;
+            r.episode_count = experiment.episodes.size();
+            episode_in_progress = false;
+            if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("experiment_resumed",r));
+            for (auto &local_client:subscribed_local_clients) local_client->on_experiment_resumed(r);
+            return r;
+        }
+        return r;
+    }
 }

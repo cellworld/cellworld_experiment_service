@@ -11,6 +11,7 @@ namespace experiment {
         Routes(
                 Add_route("experiment_started", on_experiment_started, Start_experiment_response);
                 Add_route("episode_started", on_episode_started, std::string);
+                Add_route("experiment_resumed", on_experiment_resumed, Resume_experiment_response);
                 Add_route("episode_finished", on_episode_finished);
                 Add_route("experiment_finished", on_experiment_finished, std::string);
                 Add_route("behavior_set", on_behavior_set, int);
@@ -19,6 +20,8 @@ namespace experiment {
         )
 
         virtual void on_experiment_started(const Start_experiment_response &) {};
+
+        virtual void on_experiment_resumed(const Resume_experiment_response &) {};
 
         virtual void on_episode_started(const std::string &) {};
 
@@ -37,11 +40,14 @@ namespace experiment {
         Start_experiment_response start_experiment(const cell_world::World_info &world, const std::string &subject_name, int duration,
                          const std::string &prefix = "", const std::string &suffix = "");
 
+        Resume_experiment_response resume_experiment(const std::string &experiment_name, unsigned int duration_extension);
+
         bool start_episode(const std::string &experiment_name);
 
         bool finish_episode();
 
         bool finish_experiment(const std::string &experiment_name);
+
 
         Get_experiment_response get_experiment(const std::string &experiment_name);
 

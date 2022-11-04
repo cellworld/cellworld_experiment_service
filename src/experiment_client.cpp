@@ -130,4 +130,15 @@ namespace experiment {
             return send_request(Message("human_intervention", r)).get_body<bool>();
         }
     }
+
+    Resume_experiment_response
+    Experiment_client::resume_experiment(const string &experiment_name, unsigned int duration_extension) {
+        Resume_experiment_request r;
+        r.experiment_name = experiment_name;
+        if (local_server) {
+            return local_server->resume_experiment(r);
+        } else {
+            return send_request(Message("resume_experiment", r)).get_body<Resume_experiment_response>();
+        }
+    }
 }

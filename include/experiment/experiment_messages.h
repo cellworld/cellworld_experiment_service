@@ -34,6 +34,32 @@ namespace experiment {
         int duration;
     };
 
+    struct Resume_experiment_request : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(experiment_name);
+                Add_member(duration_extension);
+        )
+        std::string experiment_name;
+        int duration_extension;
+    };
+
+    struct Resume_experiment_response :json_cpp::Json_object{
+        Json_object_members(
+                Add_member(experiment_name);
+                Add_member(start_date);
+                Add_member(world);
+                Add_member(subject_name);
+                Add_member(duration);
+                Add_member(episode_count);
+        )
+        std::string experiment_name;
+        json_cpp::Json_date start_date;
+        cell_world::World_info world;
+        std::string subject_name;
+        int duration;
+        unsigned int episode_count;
+    };
+
     struct Start_episode_request : json_cpp::Json_object{
         Json_object_members(
                 Add_member(experiment_name);
