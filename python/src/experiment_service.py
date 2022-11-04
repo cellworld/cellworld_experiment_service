@@ -20,6 +20,7 @@ class ExperimentService(MessageServer):
         self.router.add_route("get_experiment", self.get_experiment, GetExperimentRequest)
         self.router.add_route("set_behavior", self.set_behavior, SetBehaviorRequest)
         self.router.add_route("capture", self.capture, CaptureRequest)
+        self.router.add_route("resume_experiment", self.resume_experiment, ResumeExperimentRequest)
         self.allow_subscription = True
         self.active_experiment = None
         self.active_episode = None
@@ -31,6 +32,7 @@ class ExperimentService(MessageServer):
         self.on_episode_started = None
         self.on_episode_finished = None
         self.on_experiment_finished = None
+        self.on_experiment_resumed = None
 
     def set_behavior(self, request: SetBehaviorRequest) -> bool:
         self.broadcast_subscribed(Message("behavior_set", request.behavior))
@@ -125,6 +127,29 @@ class ExperimentService(MessageServer):
             self.broadcast_subscribed(Message("experiment_finished", parameters))
             if self.on_experiment_finished:
                 self.on_experiment_finished(parameters)
+            return True
+        return False
+
+    def resume_experiment(self, parameters: ResumeExperimentRequest) -> ResumeExperimentResponse:
+        response = ResumeExperimentResponse()
+        experiment = Experiment.load_from_file(ExperimentService.get_experiment_file(parameters.experiment_name))
+        if experiment:
+            self.active_episode = Episode()
+            self.active_episode.start_time = experiment.episodes[-1].end_time
+            self.active_episode.end_time = datetime.now()
+            experiment.episodes.append(self.active_episode)
+            response.experiment_name = experiment.name
+            response.world = World_info(world_configuration=experiment.world_configuration_name,
+                                             world_implementation=experiment.world_implementation_name,
+                                             occlusions=experiment.occlusions)
+            response.start_date = experiment.start_time
+            response.duration = experiment.duration + parameters.duration_extension
+            response.subject_name = experiment.subject_name
+            response.episode_count = len(experiment.episodes)
+            self.episode_in_progress = False
+            self.broadcast_subscribed(Message("experiment_resumed", response))
+            if self.on_experiment_resumed:
+                self.on_experiment_resumed(parameters)
             return True
         return False
 
