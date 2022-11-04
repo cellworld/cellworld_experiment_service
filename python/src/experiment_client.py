@@ -8,6 +8,7 @@ class ExperimentClient(MessageClient):
     def __init__(self):
         MessageClient.__init__(self)
         self.router.add_route("experiment_started", self.__process_experiment_started__, StartExperimentResponse)
+        self.router.add_route("experiment_resumed", self.__process_experiment_resumed__, ResumeExperimentResponse)
         self.router.add_route("episode_started", self.__process_episode_started__, str)
         self.router.add_route("episode_finished", self.__process_episode_finished__, str)
         self.router.add_route("experiment_finished", self.__process_experiment_finished__, str)
@@ -15,13 +16,13 @@ class ExperimentClient(MessageClient):
         self.router.add_route("behavior_set", self.__process_behavior_set__, int)
         self.router.add_route("prey_entered_arena", self.__prey_entered_arena__)
         self.on_experiment_started = None
+        self.on_experiment_resumed = None
         self.on_experiment_finished = None
         self.on_episode_started = None
         self.on_episode_finished = None
         self.on_capture = None
         self.on_behavior_set = None
         self.on_prey_entered_arena = None
-
 
     def subscribe(self):
         return self.send_request(Message("!subscribe"), 0).body == "success"
@@ -41,6 +42,10 @@ class ExperimentClient(MessageClient):
     def __process_experiment_started__(self, parameters: StartExperimentResponse):
         if self.on_experiment_started:
             self.on_experiment_started(parameters)
+
+    def __process_experiment_resumed__(self, parameters: ResumeExperimentResponse):
+        if self.on_experiment_resumed:
+            self.on_experiment_resumed(parameters)
 
     def __process_episode_started__(self, experiment_name: str):
         if self.on_episode_started:
