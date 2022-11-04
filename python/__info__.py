@@ -1,5 +1,5 @@
 def __module_version__():
-	return 0, 0, 20 
+	return 0, 0, 23 
 
 
 def __module_name__():
@@ -60,5 +60,9 @@ def __root_folder__():
 
 def __description__():
 	return 'experiment service' 
+
+
+def __package_data__():
+	return {} 
 
 
