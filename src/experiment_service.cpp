@@ -210,7 +210,7 @@ namespace experiment {
             auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
             // state the interruption as an empty episode
             active_episode = Episode();
-            active_episode.start_time = experiment.episodes.back().start_time;
+            active_episode.start_time = experiment.episodes.back().end_time;
             active_episode.end_time = json_cpp::Json_date::now();
             experiment.episodes.push_back(active_episode);
             //
