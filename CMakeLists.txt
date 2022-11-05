@@ -40,6 +40,13 @@ install_git_dependency(Agent_tracking https://github.com/germanespinosa/agent_tr
 
 add_library(experiment_service ${experiment_service_files})
 
+install_git_dependency( Perf-analysis
+        https://github.com/germanespinosa/perf-analysis
+        CMAKE_PROJECT
+        IMPORT_TARGETS perf-analysis
+        INCLUDE_DIRECTORIES include)
+
+target_link_libraries( experiment_service perf-analysis )
 #
 #add_executable(experiment_server src/tools/server.cpp)
 #
