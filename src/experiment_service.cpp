@@ -247,6 +247,7 @@ namespace experiment {
         PERF_SCOPE("Experiment_server::resume_experiment");
         Resume_experiment_response r;
         if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
+            active_experiment = parameters.experiment_name;
             auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
             // state the interruption as an empty episode
             auto interruption_start_time = experiment.start_time;
@@ -271,7 +272,7 @@ namespace experiment {
             r.duration = experiment.duration;
             r.start_date = experiment.start_time;
             r.subject_name = experiment.subject_name;
-            r.episode_count = experiment.episodes.size();
+            r.episode_count = experiment.episode_count;
             episode_in_progress = false;
             if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("experiment_resumed",r));
             for (auto &local_client:subscribed_local_clients) local_client->on_experiment_resumed(r);

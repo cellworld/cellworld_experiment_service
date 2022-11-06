@@ -87,6 +87,9 @@ class ExperimentClient(MessageClient):
     def finish_experiment(self, experiment_name: str):
         return self.send_request(Message("finish_experiment", FinishExperimentRequest(experiment_name=experiment_name)), 5000).get_body(bool)
 
+    def resume_experiment(self, experiment_name: str, duration_extension: int):
+        return self.send_request(Message("resume_experiment", ResumeExperimentRequest(experiment_name=experiment_name, duration_extension=duration_extension)), 5000).get_body(ResumeExperimentResponse)
+
     def get_experiment(self, experiment_name: str) -> GetExperimentResponse:
         return self.send_request(Message("get_experiment", GetExperimentRequest(experiment_name=experiment_name)), 5000).get_body(GetExperimentResponse)
 
