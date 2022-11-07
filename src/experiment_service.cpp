@@ -139,6 +139,7 @@ namespace experiment {
     bool Experiment_server::finish_episode() {
         PERF_SCOPE("Experiment_server::finish_episode");
         if (!episode_in_progress) return false;
+        episode_in_progress = false;
         if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
         auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
         active_episode.end_time = json_cpp::Json_date::now();
@@ -147,7 +148,6 @@ namespace experiment {
         active_episode.save(get_episode_file(active_experiment, experiment.episode_count));
         experiment.episode_count++;
         experiment.save(get_experiment_file(active_experiment));
-        episode_in_progress = false;
         if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_finished",active_experiment));
         for (auto &local_client:subscribed_local_clients) local_client->on_episode_finished();
         return true;
