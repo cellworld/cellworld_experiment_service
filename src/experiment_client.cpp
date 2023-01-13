@@ -141,4 +141,16 @@ namespace experiment {
             return send_request(Message("resume_experiment", r)).get_body<Resume_experiment_response>();
         }
     }
+
+    bool Experiment_client::experiment_broadcast(const tcp_messages::Message &message) {
+        if (local_server) {
+            local_server->broadcast_subscribed(message);
+            return true;
+        } else {
+            Broadcast_request r;
+            r.message_header = message.header;
+            r.message_body = message.body;
+            return send_request(Message("experiment_broadcast", r)).get_body<bool>();
+        }
+    }
 }

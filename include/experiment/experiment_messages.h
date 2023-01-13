@@ -120,4 +120,13 @@ namespace experiment {
         )
         bool active;
     };
+
+    struct Broadcast_request : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(message_header);
+                Add_member(message_body);
+        )
+        std::string message_header;
+        std::string message_body;
+    };
 }

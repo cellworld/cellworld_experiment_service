@@ -69,6 +69,8 @@ namespace experiment {
 
         bool unsubscribe();
 
+        bool experiment_broadcast(const tcp_messages::Message &message);
+
         virtual ~Experiment_client() = default;
     };
 }

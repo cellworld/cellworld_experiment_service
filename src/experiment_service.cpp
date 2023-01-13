@@ -113,9 +113,15 @@ namespace experiment {
     void Experiment_tracking_client::on_step(const Step &step) {
         PERF_SCOPE("Experiment_tracking_client::on_step");
         if (experiment_server->episode_in_progress){
-            experiment_server->step_insertion_mtx.lock();
-            experiment_server->active_episode.trajectories.push_back(step);
-            experiment_server->step_insertion_mtx.unlock();
+            if (step.agent_name=="prey"){
+                experiment_server->prey_detected = true;
+            }
+
+            if (experiment_server->prey_detected) {
+                experiment_server->step_insertion_mtx.lock();
+                experiment_server->active_episode.trajectories.push_back(step);
+                experiment_server->step_insertion_mtx.unlock();
+            }
         }
     }
 
@@ -127,6 +133,7 @@ namespace experiment {
             active_episode = Episode();
             //active_episode.trajectories.reserve(50000);
             episode_in_progress = true;
+            prey_detected = false;
             thread( [this]() {
                 if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_started", active_experiment));
                 for (auto &local_client: subscribed_local_clients) local_client->on_episode_started(active_experiment);
@@ -279,5 +286,10 @@ namespace experiment {
             return r;
         }
         return r;
+    }
+
+    bool Experiment_service::experiment_broadcast(const Broadcast_request &broadcast_request) {
+        broadcast_subscribed(Message(broadcast_request.message_header, broadcast_request.message_body));
+        return true;
     }
 }
