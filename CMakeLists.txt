@@ -34,9 +34,15 @@ set(experiment_service_files
         src/experiment_service.cpp
         )
 
+install_git_dependency(Cellworld
+        https://github.com/germanespinosa/cellworld
+        CMAKE_PROJECT
+        IMPORT_TARGETS cellworld requests json-cpp)
 
 install_git_dependency(Agent_tracking https://github.com/germanespinosa/agent_tracking
-        CMAKE_PROJECT )
+        CMAKE_PROJECT
+        IMPORT_TARGETS agent_tracking
+        INCLUDE_DIRECTORIES include)
 
 add_library(experiment_service ${experiment_service_files})
 
