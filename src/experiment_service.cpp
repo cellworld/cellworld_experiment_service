@@ -44,6 +44,12 @@ namespace experiment {
         return server->start_episode(parameters);
     }
 
+    bool Experiment_service::reward_reached() {
+        PERF_SCOPE("Experiment_service::reward_reached");
+        auto server = (Experiment_server *)_server;
+        return server->reward_reached();
+    }
+
     bool Experiment_service::finish_episode() {
         PERF_SCOPE("Experiment_service::finish_episode");
         auto server = (Experiment_server *)_server;
@@ -82,6 +88,7 @@ namespace experiment {
         auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
         float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
         if (remaining<0) remaining = 0;
+        response.rewards_cell = experiment.rewards_cells;
         response.world_info.world_configuration = experiment.world_configuration_name;
         response.world_info.world_implementation = experiment.world_implementation_name;
         response.world_info.occlusions = experiment.occlusions;
@@ -116,11 +123,11 @@ namespace experiment {
             if (step.agent_name=="prey"){
                 experiment_server->prey_detected = true;
             }
-
             if (experiment_server->prey_detected) {
                 experiment_server->step_insertion_mtx.lock();
                 experiment_server->active_episode.trajectories.push_back(step);
                 experiment_server->step_insertion_mtx.unlock();
+                experiment_server->current_time = step.time_stamp;
             }
         }
     }
@@ -134,10 +141,13 @@ namespace experiment {
             //active_episode.trajectories.reserve(50000);
             episode_in_progress = true;
             prey_detected = false;
-            thread( [this]() {
-                if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_started", active_experiment));
+            Episode_started_message message;
+            message.experiment_name = active_experiment;
+            message.rewards_sequence = parameters.rewards_sequence;
+            thread( [this]( auto message) {
+                if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("episode_started", message));
                 for (auto &local_client: subscribed_local_clients) local_client->on_episode_started(active_experiment);
-            }).detach();
+            }, message).detach();
             return true;
         }
         return false;
@@ -200,6 +210,13 @@ namespace experiment {
         return true;
     }
 
+    bool Experiment_server::reward_reached() {
+        PERF_SCOPE("Experiment_server::reward_reached");
+        if (!clients.empty()) broadcast_subscribed(Message("reward_reached"));
+        active_episode.rewards_time_stamps.push_back(current_time);
+        for (auto &local_client:subscribed_local_clients) local_client->on_prey_entered_arena();
+        return true;
+    }
 
     Experiment_server::~Experiment_server() {
         for (auto local_client: local_clients){
@@ -226,6 +243,7 @@ namespace experiment {
         response.subject_name = parameters.subject_name;
         response.world = parameters.world;
         response.duration = parameters.duration;
+        response.rewards_cells = parameters.rewards_cells;
         if (!clients.empty()) broadcast_subscribed(tcp_messages::Message("experiment_started",response));
         for (auto &local_client:subscribed_local_clients) local_client->on_experiment_started(response);
         return response;
@@ -292,4 +310,5 @@ namespace experiment {
         broadcast_subscribed(Message(broadcast_request.message_header, broadcast_request.message_body));
         return true;
     }
+
 }

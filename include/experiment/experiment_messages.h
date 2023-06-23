@@ -11,12 +11,14 @@ namespace experiment {
                 Add_member(world);
                 Add_member(subject_name);
                 Add_member(duration);
+                Add_member(rewards_cells);
                 )
         std::string prefix;
         std::string suffix;
         cell_world::World_info world;
         std::string subject_name;
         int duration;
+        cell_world::Cell_group_builder rewards_cells;
     };
 
     struct Start_experiment_response :json_cpp::Json_object{
@@ -31,6 +33,7 @@ namespace experiment {
         json_cpp::Json_date start_date;
         cell_world::World_info world;
         std::string subject_name;
+        cell_world::Cell_group_builder rewards_cells;
         int duration;
     };
 
@@ -63,8 +66,10 @@ namespace experiment {
     struct Start_episode_request : json_cpp::Json_object{
         Json_object_members(
                 Add_member(experiment_name);
+                Add_optional_member(rewards_sequence);
         )
         std::string experiment_name;
+        cell_world::Cell_group_builder rewards_sequence;
     };
 
     struct Finish_experiment_request : json_cpp::Json_object{
@@ -97,6 +102,7 @@ namespace experiment {
                 Add_member(duration);
                 Add_member(remaining_time);
                 Add_member(episode_count);
+                Add_member(rewards_cell);
         )
         std::string experiment_name;
         cell_world::World_info world_info;
@@ -105,6 +111,7 @@ namespace experiment {
         unsigned int duration;
         float remaining_time;
         unsigned int episode_count;
+        cell_world::Cell_group_builder rewards_cell;
     };
 
     struct Capture_request : json_cpp::Json_object{
@@ -128,5 +135,14 @@ namespace experiment {
         )
         std::string message_header;
         std::string message_body;
+    };
+
+    struct Episode_started_message : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(experiment_name);
+                Add_member(rewards_sequence);
+        )
+        std::string experiment_name;
+        cell_world::Cell_group_builder rewards_sequence;
     };
 }

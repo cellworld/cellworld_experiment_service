@@ -23,6 +23,7 @@ namespace experiment{
                 Add_route_with_response("human_intervention", human_intervention, Human_intervention_request);
                 Add_route_with_response("set_behavior", set_behavior, Set_behavior_request);
                 Add_route_with_response("prey_enter_arena", prey_enter_arena);
+                Add_route_with_response("reward_reached", reward_reached);
                 Add_route_with_response("experiment_broadcast", experiment_broadcast, Broadcast_request);
                 Allow_subscription();
                 )
@@ -34,6 +35,7 @@ namespace experiment{
         bool finish_episode();
         bool finish_experiment(const Finish_experiment_request &);
         bool prey_enter_arena();
+        bool reward_reached();
         static Get_experiment_response get_experiment(const Get_experiment_request &);
 
         static void set_logs_folder(const std::string &path);
@@ -55,6 +57,7 @@ namespace experiment{
         bool set_behavior(const Set_behavior_request &);
         void set_tracking_client(Experiment_tracking_client &);
         bool prey_enter_arena();
+        bool reward_reached();
 
 
         std::string active_experiment = "";
@@ -63,7 +66,7 @@ namespace experiment{
         bool prey_detected = false;
         Experiment_tracking_client *tracking_client = nullptr;
         std::string tracking_service_ip = "";
-
+        float current_time=0;
 
         template< typename T, typename... Ts>
         T &create_local_client(Ts... vs){
