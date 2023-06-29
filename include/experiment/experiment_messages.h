@@ -12,6 +12,7 @@ namespace experiment {
                 Add_member(subject_name);
                 Add_member(duration);
                 Add_member(rewards_cells);
+                Add_member(rewards_orientations);
                 )
         std::string prefix;
         std::string suffix;
@@ -19,6 +20,7 @@ namespace experiment {
         std::string subject_name;
         int duration;
         cell_world::Cell_group_builder rewards_cells;
+        cell_world::Json_int_vector rewards_orientations;
     };
 
     struct Start_experiment_response :json_cpp::Json_object{
@@ -102,7 +104,7 @@ namespace experiment {
                 Add_member(duration);
                 Add_member(remaining_time);
                 Add_member(episode_count);
-                Add_member(rewards_cell);
+                Add_member(rewards_cells);
         )
         std::string experiment_name;
         cell_world::World_info world_info;
@@ -111,7 +113,7 @@ namespace experiment {
         unsigned int duration;
         float remaining_time;
         unsigned int episode_count;
-        cell_world::Cell_group_builder rewards_cell;
+        cell_world::Cell_group_builder rewards_cells;
     };
 
     struct Capture_request : json_cpp::Json_object{

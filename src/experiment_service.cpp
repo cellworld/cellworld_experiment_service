@@ -88,7 +88,7 @@ namespace experiment {
         auto end_time = experiment.start_time + chrono::minutes(experiment.duration);
         float remaining = ((float)(end_time - json_cpp::Json_date::now()).count()) / 1000;
         if (remaining<0) remaining = 0;
-        response.rewards_cell = experiment.rewards_cells;
+        response.rewards_cells = experiment.rewards_cells;
         response.world_info.world_configuration = experiment.world_configuration_name;
         response.world_info.world_implementation = experiment.world_implementation_name;
         response.world_info.occlusions = experiment.occlusions;
@@ -138,6 +138,7 @@ namespace experiment {
         if (cell_world::file_exists(get_experiment_file(parameters.experiment_name))){
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
+            active_episode.rewards_sequence = parameters.rewards_sequence;
             //active_episode.trajectories.reserve(50000);
             episode_in_progress = true;
             prey_detected = false;
@@ -234,6 +235,8 @@ namespace experiment {
         new_experiment.duration = parameters.duration;
         new_experiment.subject_name = parameters.subject_name;
         new_experiment.start_time = json_cpp::Json_date::now();
+        new_experiment.rewards_cells = parameters.rewards_cells;
+        new_experiment.rewards_orientations = parameters.rewards_orientations;
         new_experiment.set_name(parameters.prefix, parameters.suffix);
         std::filesystem::create_directories(logs_path + '/' + parameters.prefix + "/" + new_experiment.name);
         new_experiment.save(get_experiment_file(new_experiment.name));

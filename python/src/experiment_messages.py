@@ -83,7 +83,7 @@ class GetExperimentRequest(JsonObject):
 
 
 class GetExperimentResponse(JsonObject):
-    def __init__(self, experiment_name: str = "", world_info: World_info = None, start_date: datetime = None, subject_name: str = "", duration: int = 0, remaining_time: float =0.0, episode_count: int=0):
+    def __init__(self, experiment_name: str = "", world_info: World_info = None, start_date: datetime = None, subject_name: str = "", duration: int = 0, remaining_time: float =0.0, episode_count: int=0, rewards_cells:Cell_group_builder=None):
         self.experiment_name = experiment_name
         if not world_info:
             world_info = World_info()
@@ -95,6 +95,10 @@ class GetExperimentResponse(JsonObject):
         self.duration = duration
         self.remaining_time = remaining_time
         self.episode_count = episode_count
+        if not rewards_cells:
+            self.rewards_cells = Cell_group_builder()
+        else:
+            self.rewards_cells = rewards_cells
 
 class CaptureRequest(JsonObject):
     def __init__(self, frame: int = 0):
