@@ -30,6 +30,7 @@ namespace experiment {
                 Add_member(world);
                 Add_member(subject_name);
                 Add_member(duration);
+                Add_optional_member(rewards_cells);
                 )
         std::string experiment_name;
         json_cpp::Json_date start_date;
