@@ -139,6 +139,7 @@ namespace experiment {
             active_experiment = parameters.experiment_name;
             active_episode = Episode();
             active_episode.rewards_sequence = parameters.rewards_sequence;
+            active_episode.start_time = json_cpp::Json_date::now();
             //active_episode.trajectories.reserve(50000);
             episode_in_progress = true;
             prey_detected = false;
