@@ -47,7 +47,7 @@ install_git_dependency(Agent_tracking https://github.com/germanespinosa/agent_tr
 add_library(experiment_service ${experiment_service_files})
 
 install_git_dependency( Perf-analysis
-        https://github.com/cellworld/perf-analysis
+        https://github.com/cellworld/dependency_perf-analysis
         CMAKE_PROJECT
         IMPORT_TARGETS perf-analysis
         INCLUDE_DIRECTORIES include)
