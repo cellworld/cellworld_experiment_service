@@ -35,7 +35,7 @@ set(experiment_service_files
         )
 
 install_git_dependency(Cellworld
-        https://github.com/germanespinosa/cellworld
+        https://github.com/cellworld/cellworld
         CMAKE_PROJECT
         IMPORT_TARGETS cellworld requests json-cpp)
 
