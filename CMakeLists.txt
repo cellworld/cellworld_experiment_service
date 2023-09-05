@@ -39,7 +39,7 @@ install_git_dependency(Cellworld
         CMAKE_PROJECT
         IMPORT_TARGETS cellworld requests json-cpp)
 
-install_git_dependency(Agent_tracking https://github.com/germanespinosa/agent_tracking
+install_git_dependency(Agent_tracking https://github.com/cellworld/cellworld_agent_tracking
         CMAKE_PROJECT
         IMPORT_TARGETS agent_tracking
         INCLUDE_DIRECTORIES include)
@@ -65,7 +65,7 @@ target_link_libraries( experiment_service perf-analysis )
 ###
 ### TESTS
 ###
-#install_dependency(https://github.com/germanespinosa/catch CatchTests)
+#install_dependency(https://github.com/cellworld/dependency_catch CatchTests)
 #test_library(experiment_service catchtests/client_test.cpp)
 
 
