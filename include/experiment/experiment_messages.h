@@ -11,8 +11,8 @@ namespace experiment {
                 Add_member(world);
                 Add_member(subject_name);
                 Add_member(duration);
-                Add_member(rewards_cells);
-                Add_member(rewards_orientations);
+                Add_optional_member(rewards_cells);
+                Add_optional_member(rewards_orientations);
                 )
         std::string prefix;
         std::string suffix;
@@ -138,6 +138,15 @@ namespace experiment {
         )
         std::string message_header;
         std::string message_body;
+    };
+
+    struct Set_agent_data_request : json_cpp::Json_object{
+        Json_object_members(
+                Add_member(agent_name);
+                Add_member(data);
+        )
+        std::string agent_name;
+        std::string data;
     };
 
     struct Episode_started_message : json_cpp::Json_object{

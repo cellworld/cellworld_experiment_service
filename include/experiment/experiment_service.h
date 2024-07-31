@@ -25,6 +25,7 @@ namespace experiment{
                 Add_route_with_response("prey_enter_arena", prey_enter_arena);
                 Add_route_with_response("reward_reached", reward_reached);
                 Add_route_with_response("experiment_broadcast", experiment_broadcast, Broadcast_request);
+                Add_route_with_response("set_agent_data", set_agent_data, Set_agent_data_request);
                 Allow_subscription();
                 )
 
@@ -43,6 +44,7 @@ namespace experiment{
         bool capture(const Capture_request &);
         bool human_intervention(const Human_intervention_request &);
         bool set_behavior(const Set_behavior_request &);
+        bool set_agent_data(const Set_agent_data_request &);
     };
 
     struct Experiment_server : tcp_messages::Message_server<Experiment_service> {
@@ -58,6 +60,7 @@ namespace experiment{
         void set_tracking_client(Experiment_tracking_client &);
         bool prey_enter_arena();
         bool reward_reached();
+        bool set_agent_data(const std::string &,const std::string &);
 
 
         std::string active_experiment = "";
@@ -67,6 +70,7 @@ namespace experiment{
         Experiment_tracking_client *tracking_client = nullptr;
         std::string tracking_service_ip = "";
         float current_time=0;
+        std::map<std::string, std::string> agent_data;
 
         template< typename T, typename... Ts>
         T &create_local_client(Ts... vs){

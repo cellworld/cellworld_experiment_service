@@ -63,6 +63,8 @@ namespace experiment {
 
         bool prey_enter_arena();
 
+        bool set_agent_data(const std::string &, const std::string &);
+
         Experiment_server *local_server = nullptr;
 
         bool subscribe();

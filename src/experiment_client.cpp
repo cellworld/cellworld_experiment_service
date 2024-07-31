@@ -153,4 +153,11 @@ namespace experiment {
             return send_request(Message("experiment_broadcast", r)).get_body<bool>();
         }
     }
+
+    bool Experiment_client::set_agent_data(const std::string &agent_name, const std::string &data) {
+        Set_agent_data_request request;
+        request.agent_name=agent_name;
+        request.data=data;
+        return send_request(Message("set_agent_data", request)).get_body<bool>();
+    }
 }

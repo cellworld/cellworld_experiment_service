@@ -120,14 +120,18 @@ namespace experiment {
     void Experiment_tracking_client::on_step(const Step &step) {
         PERF_SCOPE("Experiment_tracking_client::on_step");
         if (experiment_server->episode_in_progress){
-            if (step.agent_name=="prey"){
+            auto new_step = step;
+            if (new_step.agent_name=="prey" || new_step.agent_name.starts_with("mouse")){
                 experiment_server->prey_detected = true;
+            }
+            if (new_step.data.empty() && experiment_server->agent_data.contains(new_step.agent_name)){
+                new_step.data = experiment_server->agent_data[new_step.agent_name];
             }
             if (experiment_server->prey_detected) {
                 experiment_server->step_insertion_mtx.lock();
-                experiment_server->active_episode.trajectories.push_back(step);
+                experiment_server->active_episode.trajectories.push_back(new_step);
                 experiment_server->step_insertion_mtx.unlock();
-                experiment_server->current_time = step.time_stamp;
+                experiment_server->current_time = new_step.time_stamp;
             }
         }
     }
@@ -143,6 +147,7 @@ namespace experiment {
             //active_episode.trajectories.reserve(50000);
             episode_in_progress = true;
             prey_detected = false;
+            agent_data = map<string,string>();
             Episode_started_message message;
             message.experiment_name = active_experiment;
             message.rewards_sequence = parameters.rewards_sequence;
@@ -162,7 +167,7 @@ namespace experiment {
         if (!cell_world::file_exists(get_experiment_file(active_experiment))) return false;
         auto experiment = json_cpp::Json_from_file<Experiment>(get_experiment_file(active_experiment));
         active_episode.end_time = json_cpp::Json_date::now();
-        //experiment.episodes.push_back(active_episode);
+//        experiment.episodes.push_back(active_episode);     //TODO: was commented out
         create_folder(get_episode_folder(active_experiment, experiment.episode_count));
         active_episode.save(get_episode_file(active_experiment, experiment.episode_count));
         experiment.episode_count++;
@@ -315,4 +320,13 @@ namespace experiment {
         return true;
     }
 
+    bool Experiment_server::set_agent_data(const string &agent_name, const string &data) {
+        agent_data[agent_name] = data;
+        return true;
+    }
+
+    bool Experiment_service::set_agent_data(const Set_agent_data_request &request) {
+        auto server = (Experiment_server *)_server;
+        return server->set_agent_data(request.agent_name, request.data);
+    }
 }
